@@ -3,7 +3,8 @@ from pathlib import Path
 
 import cv2
 
-from src.simulator.constants import MAXIMUM_IMAGE_WIDTH, WallData
+from src.simulator.constants import MAXIMUM_IMAGE_WIDTH
+from src.simulator.contracts import WallData
 
 
 class Simulator:
@@ -99,6 +100,10 @@ class Simulator:
                     cv2.arrowedLine(self.__maze_img, pos, (pos[0], int(pos[1] + 0.33 * self.__cell_shape[1])),
                                     color, thickness)
 
+
+                if self.__wall_info[(x, y)].scanned:
+                    cv2.circle(self.__maze_img, (pos[0], pos[1]), 5, (0,255,0), -1)
+
     def display_maze(self):
         cv2.imshow("Maze", self.__maze_img)
         cv2.waitKey(0)
@@ -123,6 +128,8 @@ class Simulator:
         if sensor_values[3]:
             cv2.circle(self.__maze_img, (xp, yp + sensor_values[3]), 3, color, -1)
 
+
+
     def set_sensors(self, sensors: (bool, bool, bool, bool)):
         self.__sensors = sensors
 
@@ -141,17 +148,23 @@ class Simulator:
 
         # BOTTOM
         if sensor_values[3]:
-            self.__wall_info[self.__pixel_to_grid(x_px, y_px - sensor_values[3])].bottom = 1
+            self.__wall_info[self.__pixel_to_grid(x_px, y_px + sensor_values[3])].bottom = 1
 
     def simulate_ultrasonic(self, grid_x: int, grid_y: int):
         ret = [0,0,0,0]
         xp, yp = self.__grid_to_pixel(grid_x, grid_y)
+
+        self.__wall_info[(grid_x, grid_y)].scanned = True
+        self.__wall_info[(grid_x, grid_y)].visited = True
 
         # LEFT
         if self.__sensors[0]:
             for xl in range(xp):
                 if not any(self.__maze_img[yp, xp - xl]):
                     ret[0] = xl
+                    left = self.__pixel_to_grid(xp-xl, yp)
+                    for x in range(left[0], grid_x):
+                        self.__wall_info[(x, grid_y)].scanned = True
                     break
 
         # RIGHT
@@ -159,6 +172,9 @@ class Simulator:
             for xr in range(self.__maze_img_w - xp):
                 if not any(self.__maze_img[yp, xp + xr]):
                     ret[1] = xr
+                    right = self.__pixel_to_grid(xp+xr, yp)
+                    for x in range(grid_x, right[0]+1):
+                        self.__wall_info[(x, grid_y)].scanned = True
                     break
 
         # TOP
@@ -166,6 +182,9 @@ class Simulator:
             for yt in range(yp):
                 if not any(self.__maze_img[yp - yt, xp]):
                     ret[2] = yt
+                    top = self.__pixel_to_grid(xp, yp - yt)
+                    for y in range(top[1], grid_y):
+                        self.__wall_info[(grid_x, y)].scanned = True
                     break
 
         # BOTTOM
@@ -173,11 +192,14 @@ class Simulator:
             for yb in range(self.__maze_img_h - yp):
                 if not any(self.__maze_img[yp + yb, xp]):
                     ret[3] = yb
+                    bottom = self.__pixel_to_grid(xp, yp + yb)
+                    for y in range(grid_y, bottom[1]+1):
+                        self.__wall_info[(grid_x, y)].scanned = True
                     break
 
         self.__update_wall_info(xp, yp, ret)
 
         return ret
 
-    def check_possible_moves(self, grid_x: int, grid_y: int):
+    def check_possible_moves(self, grid_x: int, grid_y: int) -> (int, int, int, int):
         ...
