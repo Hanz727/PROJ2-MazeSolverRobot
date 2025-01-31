@@ -11,7 +11,7 @@ The simulator is used to test path finding algorithms.
 git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverSimulator.git
 
 # Navigate to project dir
-cd PROJ2-MazeSolverSimulator
+cd PROJ2-MazeSolverSimulator/src
 
 # Install dependencies
 pip install -r requirements.txt
