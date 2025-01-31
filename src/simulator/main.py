@@ -9,7 +9,7 @@ if __name__ == "__main__":
     solver = Solver(simulator)
 
     # change mode here
-    mode = SIMULATOR_FULL_SOLVE_MODE
+    mode = SIMULATOR_PROCEDURAL_MODE
 
     if mode == SIMULATOR_PROCEDURAL_MODE:
         simulator.solver_func = solver.solve_procedural
