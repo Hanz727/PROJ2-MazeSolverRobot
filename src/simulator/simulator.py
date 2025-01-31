@@ -252,7 +252,7 @@ class Simulator:
         self.pos = (grid_x, grid_y)
 
     def on_click(self, event, x, y, flags, param):
-        if event == cv2.EVENT_LBUTTONDOWN:
+        if event == cv2.EVENT_LBUTTONDOWN and not self.solver_func:
             pos = self.pixel_to_grid(x, y)
             self.move(*pos)
 
