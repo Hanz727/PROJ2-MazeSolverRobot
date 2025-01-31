@@ -36,6 +36,7 @@ class Solver:
                 break
 
             self.move()
+        print("moves: ", self.__move_count)
 
     def solve_procedural(self) -> bool:
         walled_pos = self.__simulator.maze_grid_to_walled_grid(*self.__pos)
