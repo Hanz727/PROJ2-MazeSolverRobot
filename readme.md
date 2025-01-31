@@ -3,7 +3,7 @@
 📦 PROJ2-MazeSolverRobot
 ├── 📂 src                   # Source code files
 │   ├── 📂 arduino_sketch    # Everything that goes on the microcontroller
-│   │   ├── arduino_sketch.ino   # The main sketch that is to be uploaded to the microcontroller on the robot
+│   │   ├── arduino_sketch.ino   # The main sketch that is to be uploaded to the microcontroller
 │   │   ├── RangeFinder.h        # Lib that measures range from ultrasonic sensors
 │   │   └── RangeFinder.md       # RangeFinder documentation
 │   └── 📂 simulator           # Python simulator for testing and visualizing path finding algorithms
