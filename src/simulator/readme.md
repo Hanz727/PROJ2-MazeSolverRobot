@@ -11,7 +11,7 @@ The simulator is used to test path finding algorithms.
 git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverSimulator.git
 
 # Navigate to project dir
-cd PROJ2-MazeSolverSimulator/src/simulator
+cd PROJ2-MazeSolverSimulator
 
 # Install dependencies
 pip install -r requirements.txt
@@ -34,5 +34,5 @@ mode = SIMULATOR_PROCEDURAL_MODE
 | **SIMULATOR_PROCEDURAL_MODE** | The maze is solved automatically with the algorithm specified by the `Solver.move()` function, press any button but `ESC` to move the next position.                                                           |
 | **SIMULATOR_FULL_SOLVE_MODE** | The maze is solved by the `Solver.solve()` function using `Solver.move()` algorithm and the resulting amount of moves taken is printed out. Mouse input is allowed on the solved maze like in the manual mode. |
 
-4. Run with `python main.py` or `python3 main.py`
+4. Run with `python -m src.simulator.main` or `python3 -m src.simulator.main`
 5. To exit the program press `ESC`.
