@@ -34,4 +34,5 @@ mode = SIMULATOR_PROCEDURAL_MODE
 | **SIMULATOR_PROCEDURAL_MODE** | The maze is solved automatically with the algorithm specified by the `Solver.move()` function, press any button but `ESC` to move the next position.                                                           |
 | **SIMULATOR_FULL_SOLVE_MODE** | The maze is solved by the `Solver.solve()` function using `Solver.move()` algorithm and the resulting amount of moves taken is printed out. Mouse input is allowed on the solved maze like in the manual mode. |
 
-4. To exit the program press `ESC`.
+4. Run with `python main.py` or `python3 main.py`
+5. To exit the program press `ESC`.
