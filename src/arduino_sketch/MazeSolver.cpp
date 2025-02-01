@@ -71,6 +71,10 @@ vec2<double> MazeSolver::cmToPos(const vec2<double>& cm) const {
     );
 }
 
+vec2<int> MazeSolver::roundPos(const vec2<double>& pos) const {
+    return vec2<int>{(int)round(pos.x), (int)round(pos.y)};
+}
+
 vec2<int> MazeSolver::posToPosEx(const vec2<double>& pos) const {
     return vec2<int>(
         round(pos.x * 2. + 1.),
@@ -95,19 +99,19 @@ vec2<double> MazeSolver::posExToPos(const vec2<int>& posEx) const {
 // 
 // Measurement tolerance of ±4.7 cm. If exceeded everything breaks.
 void MazeSolver::markWall(const vec2 <double>& pos, const double distance, CompassDir dir) {
-    vec2<double> wallPosCm = posToCm(pos) + (vec2<double>{ distance,distance }*m_directions[(int)dir]);
+    // update latest pos
+    m_currPos = pos;
+    
+    vec2<double> wallPosCm = posToCm(pos) + (vec2<double>{ distance,distance }*getDirOffset(dir));
     vec2<int> wallPosEx = posToPosEx(cmToPos(wallPosCm));
 
     // walls are only on even spots
     if (!(wallPosEx.x % 2 == 0 || wallPosEx.y % 2 == 0))
         return;
 
-    // If the wall wasn't detected before
-    if (m_wallMatrix[wallPosEx.x][wallPosEx.y] == 1)
-        return;
+    //std::cout << wallPosEx.x << " " << wallPosEx.y << "\n";
 
     m_wallMatrix[wallPosEx.x][wallPosEx.y] = 1;
-    floodFill(m_endPos);
 }
 
 void MazeSolver::floodFill(const vec2<int>& destination) {
@@ -144,6 +148,57 @@ void MazeSolver::floodFill(const vec2<int>& destination) {
         }
 
     }
+}
+
+vec2<int> MazeSolver::getDirOffset(CompassDir dir) {
+    return m_directions[(int)log2((int)dir)];
+}
+
+vec2<int> MazeSolver::getNextMove() {
+    static vec2<int> lastMove = roundPos(m_currPos);
+    directions dirs = getPossibleMoves();
+
+    vec2<int> bestMove{-1};
+    int bestDist = 9999;
+
+    for (int i = 0; i < 4; i++) {
+        int8_t dir = dirs & (1 << i);
+        if (!dir)
+            continue;
+
+        vec2<int> newPos = roundPos(m_currPos) + getDirOffset((CompassDir)dir);
+
+        // Skip previous move
+        if (newPos == lastMove)
+            continue;
+
+        int dist = m_distanceMatrix[newPos.x][newPos.y];
+        if (dist < bestDist) {
+            bestDist = dist;
+            bestMove = newPos;
+        }
+        // TODO: add priority path switching between east, west and north, south
+    }
+
+    // Check previous move as last
+    if (m_distanceMatrix[lastMove.x][lastMove.y] < bestDist)
+        bestMove = lastMove;
+
+    lastMove = bestMove;
+    return bestMove;
+}
+
+directions MazeSolver::getPossibleMoves() {
+    directions out = 0;
+    for (int i = 0; i < 4; i++) {
+        vec2<int> wallPos = posToPosEx(m_currPos) + m_directions[i];
+        if (m_wallMatrix[wallPos.x][wallPos.y] == 1)
+            continue;
+
+        out |= (1 << i);
+    }
+
+    return out;
 }
 
 

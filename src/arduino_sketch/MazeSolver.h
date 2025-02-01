@@ -4,12 +4,13 @@
 
 // Max maze size is fixed on (65-1)/2 = 32 by 32
 using matrix2d = int8_t[65][65];
+using directions = int8_t;
 
-enum class CompassDir {
-    North = 0,
-    South = 1,
-    East  = 2,
-    West  = 3
+enum CompassDir {
+    North = (1 << 0),
+    South = (1 << 1),
+    East  = (1 << 2),
+    West  = (1 << 3)
 };
 
 struct FloodFillNode {
@@ -29,9 +30,6 @@ private:
     const uint8_t m_MazeWidthEx;
     const uint8_t m_MazeHeightEx;
 private:
-    const vec2<int> m_startPos;
-    const vec2<int> m_endPos;
-private:
     matrix2d m_distanceMatrix{0};
     matrix2d m_wallMatrix{0};
 private:
@@ -44,6 +42,10 @@ private:
 private:
     void clearDistanceMatrix();
     void clearWallMatrix();
+public:
+    const vec2<int> m_startPos;
+    const vec2<int> m_endPos;
+    vec2<double> m_currPos;
 public:
     MazeSolver(const double wallWidth,
         const double cellWidth,
@@ -59,12 +61,19 @@ public:
     vec2<double> posToCm(const vec2<double>& pos) const;
     vec2<double> cmToPos(const vec2<double>& cm) const;
 
+    vec2<int> roundPos(const vec2<double>& pos) const;
+
 public:
     vec2<int> posToPosEx(const vec2<double>& pos) const;
     vec2<double> posExToPos(const vec2<int>& posEx) const;
 public:
     void markWall(const vec2<double>& pos, const double distance, CompassDir dir);
     void floodFill(const vec2<int>& destination);
+public:
+    vec2<int> getDirOffset(CompassDir dir);
+    vec2<int> getNextMove();
+    directions getPossibleMoves();
+public:
     void printWalls();
     void printDists();
 };

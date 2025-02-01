@@ -2,11 +2,11 @@
 #include "platformDefinitions.h"
 
 #ifdef MICROCONTROLLER
-  #include <Arduino.h>
+    #include <Arduino.h>
 #endif
 
 #ifdef WINDOWS
-  #include <iostream>
+    #include <iostream>
 #endif
 
 template <typename T>
@@ -69,9 +69,9 @@ public:
     }
 
 private:
-    T* data;         
-    size_t capacity;   
+    T* data;
+    size_t capacity;
     size_t frontIndex;
     size_t backIndex;
-    size_t size; 
+    size_t size;
 };
