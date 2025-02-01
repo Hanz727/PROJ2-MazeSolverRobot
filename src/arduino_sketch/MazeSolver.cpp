@@ -1,5 +1,5 @@
 #include "MazeSolver.h"
-#include "math.h"
+#include <math.h>
 #include "platformDefinitions.h"
 #include "FixedDeque.h"
 
@@ -151,7 +151,7 @@ void MazeSolver::floodFill(const vec2<int>& destination) {
 }
 
 vec2<int> MazeSolver::getDirOffset(CompassDir dir) {
-    return m_directions[(int)log2((int)dir)];
+    return m_directions[(int)(log((int)dir)/log(2))];
 }
 
 vec2<int> MazeSolver::getNextMove() {
