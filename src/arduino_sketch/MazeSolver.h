@@ -1,9 +1,9 @@
 #pragma once
 #include "vec2.h"
 #include <stdint.h>
-#include <vector>
 
-using matrix2d = std::vector<std::vector<int8_t>>;
+// Max maze size is fixed on (65-1)/2 = 32 by 32
+using matrix2d = int8_t[65][65];
 
 class MazeSolver {
 private:
@@ -20,8 +20,8 @@ private:
     const vec2<int> m_startPos;
     const vec2<int> m_endPos;
 private:
-    matrix2d m_distanceMatrix;
-    matrix2d m_wallMatrix;
+    matrix2d m_distanceMatrix{0};
+    matrix2d m_wallMatrix{0};
 private:
     void clearDistanceMatrix();
     void clearWallMatrix();

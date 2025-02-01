@@ -28,9 +28,6 @@ MazeSolver::~MazeSolver() {
 }
 
 void MazeSolver::clearDistanceMatrix() {
-    if (m_distanceMatrix.empty())
-        m_distanceMatrix.resize(m_MazeWidth, std::vector<int8_t>(m_MazeHeight, -1));
-
     for (int x = 0; x < m_MazeWidth; x++) {
         for (int y = 0; y < m_MazeHeight; y++) {
             m_distanceMatrix[x][y] = -1;
@@ -39,9 +36,6 @@ void MazeSolver::clearDistanceMatrix() {
 }
 
 void MazeSolver::clearWallMatrix() {
-    if (m_wallMatrix.empty())
-        m_wallMatrix.resize(m_MazeWidthEx, std::vector<int8_t>(m_MazeHeightEx, 0));
-
     for (int x = 0; x < m_MazeWidthEx; x++) {
         for (int y = 0; y < m_MazeHeightEx; y++) {
             m_wallMatrix[x][y] = 0;
