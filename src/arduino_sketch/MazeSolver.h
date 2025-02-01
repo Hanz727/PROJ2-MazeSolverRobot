@@ -5,6 +5,18 @@
 // Max maze size is fixed on (65-1)/2 = 32 by 32
 using matrix2d = int8_t[65][65];
 
+enum class CompassDir {
+    North = 0,
+    South = 1,
+    East  = 2,
+    West  = 3
+};
+
+struct FloodFillNode {
+    vec2<int> pos;
+    int dist;
+};
+
 class MazeSolver {
 private:
     const double m_wallWidth;
@@ -22,6 +34,13 @@ private:
 private:
     matrix2d m_distanceMatrix{0};
     matrix2d m_wallMatrix{0};
+private:
+    vec2<int> m_directions[4] = {
+        { 0,-1}, // N
+        { 0, 1}, // S
+        { 1, 0}, // E
+        {-1, 0}  // W
+    };
 private:
     void clearDistanceMatrix();
     void clearWallMatrix();
@@ -43,5 +62,9 @@ public:
 public:
     vec2<int> posToPosEx(const vec2<double>& pos) const;
     vec2<double> posExToPos(const vec2<int>& posEx) const;
-
+public:
+    void markWall(const vec2<double>& pos, const double distance, CompassDir dir);
+    void floodFill(const vec2<int>& destination);
+    void printWalls();
+    void printDists();
 };

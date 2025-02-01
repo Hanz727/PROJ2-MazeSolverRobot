@@ -1,6 +1,8 @@
 #pragma once
+#include <math.h>
 
 // Can't use <type_traits> on arduino IDE so gotta do this...
+// This can cause integer overflow crash, but the numbers are always smaller
 template <typename T, typename U>
 struct common_type {
     using type = decltype(T() + U());
@@ -29,15 +31,6 @@ struct vec2 {
     }
 
     template <typename U>
-    vec2<common_type_t<T, U>> operator+(U other) const {
-        using ResultType = common_type_t<T, U>;
-        return vec2<ResultType>(
-            static_cast<ResultType>(x) + static_cast<ResultType>(other),
-            static_cast<ResultType>(y) + static_cast<ResultType>(other)
-        );
-    }
-
-    template <typename U>
     friend vec2<common_type_t<T, U>> operator-(const vec2<T>& a, const vec2<U>& b) {
         using ResultType = common_type_t<T, U>;
         return vec2<ResultType>(
@@ -56,21 +49,24 @@ struct vec2 {
     }
 
     template <typename U>
-    friend vec2<common_type_t<T, U>> operator*(const vec2<T>& a, U b) {
-        using ResultType = common_type_t<T, U>;
-        return vec2<ResultType>(
-            static_cast<ResultType>(a.x) * static_cast<ResultType>(b),
-            static_cast<ResultType>(a.y) * static_cast<ResultType>(b)
-        );
-    }
-
-    template <typename U>
     friend vec2<common_type_t<T, U>> operator/(const vec2<T>& a, const vec2<U>& b) {
         using ResultType = common_type_t<T, U>;
         return vec2<ResultType>(
             static_cast<ResultType>(a.x) / static_cast<ResultType>(b.x),
             static_cast<ResultType>(a.y) / static_cast<ResultType>(b.y)
         );
+    }
+
+    template <typename U>
+    bool operator==(const vec2<U>& other) const {
+        const double tolerance = 1e-9;
+        return (abs(x - other.x) < tolerance) && (abs(y - other.y) < tolerance);
+    }
+
+    template <typename U>
+    bool operator!=(const vec2<U>& other) const {
+        const double tolerance = 1e-9;
+        return (abs(x - other.x) >= tolerance) || (abs(y - other.y) >= tolerance);
     }
 
     template <typename U>
@@ -81,14 +77,6 @@ struct vec2 {
     }
 
     template <typename U>
-    vec2<T>& operator+=(U other) {
-        x += static_cast<T>(other);
-        y += static_cast<T>(other);
-        return *this;
-    }
-
-
-    template <typename U>
     vec2<T>& operator-=(const vec2<U>& other) {
         x -= static_cast<T>(other.x);
         y -= static_cast<T>(other.y);
@@ -97,13 +85,6 @@ struct vec2 {
 
     template <typename U>
     vec2<T>& operator*=(const vec2<U>& other) {
-        x *= static_cast<T>(other.x);
-        y *= static_cast<T>(other.y);
-        return *this;
-    }
-
-    template <typename U>
-    vec2<T>& operator*=(U other) {
         x *= static_cast<T>(other.x);
         y *= static_cast<T>(other.y);
         return *this;
