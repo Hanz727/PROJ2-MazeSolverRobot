@@ -96,8 +96,6 @@ vec2<double> MazeSolver::posExToPos(const vec2<int>& posEx) const {
 //   to calculate the position of the wall based on the direction.
 // - dir: The direction from the current position in which the wall is located, 
 //   represented by the CompassDir enum (e.g., North, South, East, West). Where north goes towards y = 0 and West goes to x = 0
-// 
-// Measurement tolerance of ±4.7 cm. If exceeded everything breaks.
 void MazeSolver::markWall(const vec2 <double>& pos, const double distance, CompassDir dir) {
     // update latest pos
     m_currPos = pos;

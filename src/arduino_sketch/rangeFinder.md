@@ -1,4 +1,5 @@
 # RangeFinder usage guide
+This module is responsible for interfacing with multiple ultrasonic sensors in an easy way. 
 
 ### PING Ultrasonic Sensor
 ```c
