@@ -4,7 +4,7 @@
 #include "FixedDeque.h"
 
 #ifdef WINDOWS
-    #include <iostream>
+#include <iostream>
 #endif
 
 MazeSolver::MazeSolver(
@@ -28,9 +28,6 @@ MazeSolver::MazeSolver(
 {
     clearDistanceMatrix();
     clearWallMatrix();
-}
-
-MazeSolver::~MazeSolver() {
 }
 
 void MazeSolver::clearDistanceMatrix() {
@@ -96,11 +93,11 @@ vec2<double> MazeSolver::posExToPos(const vec2<int>& posEx) const {
 //   to calculate the position of the wall based on the direction.
 // - dir: The direction from the current position in which the wall is located, 
 //   represented by the CompassDir enum (e.g., North, South, East, West). Where north goes towards y = 0 and West goes to x = 0
-void MazeSolver::markWall(const vec2 <double>& pos, const double distance, CompassDir dir) {
+void MazeSolver::markWall(const vec2 <double>& pos, const double distance, const CompassDir dir) {
     // update latest pos
     m_currPos = pos;
-    
-    vec2<double> wallPosCm = posToCm(pos) + (vec2<double>{ distance,distance }*getDirOffset(dir));
+
+    vec2<double> wallPosCm = posToCm(pos) + (vec2<double>{ distance, distance }*getDirOffset(dir));
     vec2<int> wallPosEx = posToPosEx(cmToPos(wallPosCm));
 
     // walls are only on even spots
@@ -116,8 +113,8 @@ void MazeSolver::floodFill(const vec2<int>& destination) {
     clearDistanceMatrix();
     m_distanceMatrix[destination.x][destination.y] = 0;
 
-    FixedDeque<FloodFillNode> queue(m_MazeWidth*m_MazeHeight);
-    queue.push_back( {destination, 0});
+    FixedDeque<FloodFillNode> queue(m_MazeWidth * m_MazeHeight);
+    queue.push_back({ destination, 0 });
 
     while (!(queue.is_empty())) {
         FloodFillNode node = queue.pop_front();
@@ -148,15 +145,15 @@ void MazeSolver::floodFill(const vec2<int>& destination) {
     }
 }
 
-vec2<int> MazeSolver::getDirOffset(CompassDir dir) {
-    return m_directions[(int)(log((int)dir)/log(2))];
+vec2<int> MazeSolver::getDirOffset(const CompassDir dir) const {
+    return m_directions[(int)(log((int)dir) / log(2))];
 }
 
-vec2<int> MazeSolver::getNextMove() {
+vec2<int> MazeSolver::getNextMove() const {
     static vec2<int> lastMove = roundPos(m_currPos);
     directions dirs = getPossibleMoves();
 
-    vec2<int> bestMove{-1};
+    vec2<int> bestMove{ -1 };
     int bestDist = 9999;
 
     for (int i = 0; i < 4; i++) {
@@ -186,7 +183,7 @@ vec2<int> MazeSolver::getNextMove() {
     return bestMove;
 }
 
-directions MazeSolver::getPossibleMoves() {
+directions MazeSolver::getPossibleMoves() const {
     directions out = 0;
     for (int i = 0; i < 4; i++) {
         vec2<int> wallPos = posToPosEx(m_currPos) + m_directions[i];
@@ -200,7 +197,7 @@ directions MazeSolver::getPossibleMoves() {
 }
 
 
-void MazeSolver::printWalls() {
+void MazeSolver::printWalls() const {
 #ifdef WINDOWS
     for (int y = 0; y < m_MazeHeightEx; y++) {
         for (int x = 0; x < m_MazeWidthEx; x++) {
@@ -211,7 +208,7 @@ void MazeSolver::printWalls() {
 #endif
 }
 
-void MazeSolver::printDists() {
+void MazeSolver::printDists() const {
 #ifdef WINDOWS
     for (int y = 0; y < m_MazeHeight; y++) {
         for (int x = 0; x < m_MazeWidth; x++) {
