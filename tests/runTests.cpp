@@ -1,7 +1,7 @@
-#include "vec2.h"
+#include "../src/arduino_sketch/vec2.h"
 #include "runTests.h"
 #include <cfloat>
-#include "platformDefinitions.h"
+#include "../src/arduino_sketch/platformDefinitions.h"
 
 #ifdef WINDOWS
     #include <iostream>

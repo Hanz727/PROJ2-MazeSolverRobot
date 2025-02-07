@@ -1,5 +1,10 @@
 .venv/
 
 .idea/
+.vscode/
+
+*.o
+*.exe
+*.png
 
 **/__pycache__/

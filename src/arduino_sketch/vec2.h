@@ -1,6 +1,8 @@
 #pragma once
 #include <math.h>
 
+#define PI 3.14159265358979323846
+
 // Can't use <type_traits> on arduino IDE so gotta do this...
 // This can cause integer overflow crash, but the numbers are always smaller
 template <typename T, typename U>

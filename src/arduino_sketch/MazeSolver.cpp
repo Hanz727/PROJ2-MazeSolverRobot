@@ -109,6 +109,28 @@ void MazeSolver::markWall(const vec2 <double>& pos, const double distance, const
     m_wallMatrix[wallPosEx.x][wallPosEx.y] = 1;
 }
 
+// Parameters:
+// - pos: The current position in the maze grid, represented as a vec2<double>. The more precise the position the better.
+// - distance: The distance to the wall in centimeters (double). This value is used
+//   to calculate the position of the wall based on the direction.
+// - angleRad: The compass angle from the center of the car, 0 is North, 1/2pi is East, pi is South, 3/2pi is West. 
+//             The angle is not relative to the car!
+void MazeSolver::markWall(const vec2<double>& pos, const double distance, const double angleRad) {
+    m_currPos = pos;
+
+    vec2<double> wallPosCm = posToCm(pos) + (vec2<double>{ distance*sin(angleRad), distance*cos(angleRad) });
+    vec2<int> wallPosEx = posToPosEx(cmToPos(wallPosCm));
+
+    // walls are only on even spots
+    if (!(wallPosEx.x % 2 == 0 || wallPosEx.y % 2 == 0))
+        return;
+
+    //std::cout << wallPosEx.x << " " << wallPosEx.y << "\n";
+
+    m_wallMatrix[wallPosEx.x][wallPosEx.y] = 1;
+
+}
+
 void MazeSolver::floodFill(const vec2<int>& destination) {
     clearDistanceMatrix();
     m_distanceMatrix[destination.x][destination.y] = 0;

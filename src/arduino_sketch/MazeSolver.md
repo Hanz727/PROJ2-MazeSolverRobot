@@ -54,3 +54,5 @@ If the car is at an angle, don't call the function and wait until it's fully rot
 - The (0,0) pos is top left of the maze
 - North is y = 0
 - West is x = 0
+- There also is a ```markWall()``` function that supports an angle instead of CompassDir, it can be used for angled sensors or
+detecting walls while turning.

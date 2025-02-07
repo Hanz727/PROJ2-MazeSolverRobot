@@ -1,4 +1,4 @@
 #pragma once
 
-//#define WINDOWS
-#define MICROCONTROLLER
+#define WINDOWS
+//#define MICROCONTROLLER

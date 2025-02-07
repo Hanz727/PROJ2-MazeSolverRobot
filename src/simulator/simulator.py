@@ -31,8 +31,8 @@ class Simulator:
 
         self.solver_func = None
         self.pos = start_pos
-
-        self.__load_maze(maze_path, start_pos, end_pos)
+        
+        self.__load_maze(maze_path)
         self.__setup_walled_grid()
 
     def flood_fill(self, start_x: int, start_y: int):
@@ -91,7 +91,7 @@ class Simulator:
         self.walled_grid[w_start_pos[0]][w_start_pos[1]] = 2
         self.walled_grid[w_end_pos[0]][w_end_pos[1]] = 3
 
-    def __load_maze(self, maze_path: Path, start_pos: (int, int), end_pos: (int, int)):
+    def __load_maze(self, maze_path: Path):
         self.__maze_img = cv2.imread(maze_path.as_posix())
         if self.__maze_img is None:
             print("Error: unable to read image")
