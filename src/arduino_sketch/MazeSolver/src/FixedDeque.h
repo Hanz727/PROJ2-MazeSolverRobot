@@ -1,12 +1,9 @@
 #pragma once
-#include "platformDefinitions.h"
 
-#ifdef MICROCONTROLLER
-    #include <Arduino.h>
-#endif
-
-#ifdef WINDOWS
+#ifdef DEBUG_PRINT_WINDOWS
     #include <iostream>
+#else
+    #include <Arduino.h>
 #endif
 
 template <typename T>

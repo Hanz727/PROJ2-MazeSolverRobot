@@ -1,4 +1,4 @@
-#include "../src/arduino_sketch/vec2.h"
+#include "../src/arduino_sketch/MazeSolver/vec2.h"
 #include "runTests.h"
 #include <cfloat>
 #include "../src/arduino_sketch/platformDefinitions.h"

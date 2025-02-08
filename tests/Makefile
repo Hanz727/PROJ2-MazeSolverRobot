@@ -1,10 +1,10 @@
 CXX = g++
 # DEBUG flags
-CXXFLAGS = -Wall -Wextra -std=c++17 -I../src/arduino_sketch -I. -g -O0
+CXXFLAGS = -Wall -Wextra -std=c++17 -I../src/arduino_sketch/MazeSolver -I. -g -O0
 
 TARGET = debug/testMazeSolver
 
-SRCS = testMazeSolver.cpp runTests.cpp ../src/arduino_sketch/MazeSolver.cpp
+SRCS = testMazeSolver.cpp runTests.cpp ../src/arduino_sketch/MazeSolver/MazeSolver.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 # Default target
@@ -19,7 +19,7 @@ $(TARGET): $(OBJS)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-../src/arduino_sketch/%.o: ../src/arduino_sketch/%.cpp
+../src/arduino_sketch/%.o: ../src/arduino_sketch/MazeSolver/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Clean compiled files
