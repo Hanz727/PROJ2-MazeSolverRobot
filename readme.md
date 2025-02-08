@@ -1,4 +1,16 @@
 # PROJ2 Microcontroller overview
+
+## Installation
+
+```py
+#Clone the repository (Optionally download ZIP if you don't want to use git)
+git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverRobot.git
+
+#Navigate to project dir
+cd PROJ2-MazeSolverRobot
+```
+There are more steps for simulator and arduino_sketch. Follow their respective installation guide.
+
 ```
 📦 PROJ2-MazeSolverRobot
 ├── 📂 src                       # Source code files
