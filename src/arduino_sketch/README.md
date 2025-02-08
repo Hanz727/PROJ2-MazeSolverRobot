@@ -2,7 +2,7 @@
 This sketch will be uploaded to the microcontroller on the physical robot.
 
 ## Installation
-```py
+```
 #Clone the repository (Optionally download ZIP if you don't want to use git)
 git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverRobot.git
 ```
