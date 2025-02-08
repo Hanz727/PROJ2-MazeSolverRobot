@@ -2,7 +2,7 @@
 
 ## Installation
 
-```
+```sh
 #Clone the repository (Optionally download ZIP if you don't want to use git)
 git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverRobot.git
 
