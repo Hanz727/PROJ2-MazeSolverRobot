@@ -1,0 +1,3 @@
+[submodule "src/arduino_sketch/MazeSolver"]
+	path = src/arduino_sketch/MazeSolver
+	url = https://github.com/Hanz727/MazeSolver
