@@ -1,6 +1,8 @@
 [submodule "src/arduino_sketch/MazeSolver"]
 	path = src/arduino_sketch/MazeSolver
 	url = https://github.com/Hanz727/MazeSolver
+    branch = main
 [submodule "src/arduino_sketch/RangeFinder"]
 	path = src/arduino_sketch/RangeFinder
 	url = https://github.com/Hanz727/RangeFinder
+    branch = main
