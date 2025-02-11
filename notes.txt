@@ -1,0 +1,19 @@
+!motoren zonder lib besturen
+HR-SR04
+
+Oskar Rasienski - Teamleider
+Silvan Letsch   - Notulist
+Tyron Thielman  - Koffiemachine monteur 
+Mika Duyvestijn - 
+
+
+PINOUT:
+
+SONIC sensor right (TRIG: paars, ECHO: grijs )  PIN: ... 
+SONIC sensor left  (TRIG: oranje, ECHO: rood )  PIN: ... 
+
+SERVO front (PWM: oranje) PIN: 9
+
+
+
+
