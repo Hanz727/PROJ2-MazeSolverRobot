@@ -9,9 +9,8 @@ Tyron Thielman  - Planner     (de lazer mast)
 Mika Duyvestijn - mens        (aansturing)
 
 OFFSETS:
-SIDE: 7.9CM
+SIDE-TO-MID: 7.9CM
 FRONT-TO-MID: 13CM
-
 
 PINOUT:
 
