@@ -6,5 +6,6 @@
 *.o
 *.exe
 *.png
+*.zip
 
 **/__pycache__/
