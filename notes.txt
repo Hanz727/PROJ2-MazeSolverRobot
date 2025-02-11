@@ -1,0 +1,31 @@
+TEAM SONIC
+
+!motoren zonder lib besturen
+HR-SR04
+
+Oskar Rasienski - Teamleider  (algoritmes)
+Silvan Letsch   - Notulist    (*positie)
+Tyron Thielman  - Planner     (de lazer mast)
+Mika Duyvestijn - mens        (aansturing)
+
+OFFSETS:
+SIDE: 7.9CM
+FRONT-TO-MID: 13CM
+
+
+PINOUT:
+
+SONIC sensor right PIN: (TRIG: 24 ECHO: 25) 
+SONIC sensor left  PIN: (TRIG: 22 ECHO: 23) 
+SONIC sensor front PIN: (TRIG: 28 ECHO: 29)
+
+SERVO front (PWM: oranje) PIN: 9
+SERVO middle              PIN: 27
+
+TODO:
+
+plan van aanpak
+contract
+
+motor aansturing ( timen )
+positie ( muis sensor, accelerometer mpu6050, timen )
