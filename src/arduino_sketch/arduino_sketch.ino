@@ -1,4 +1,5 @@
 #include "RangeFinder.h"
+#include "MazeSolver.h"
 
 const uint8_t pins[3] = {6,7,8};
 
