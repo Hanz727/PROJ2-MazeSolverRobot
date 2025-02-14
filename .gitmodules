@@ -4,3 +4,6 @@
 [submodule "src/arduino_sketch/RangeFinder"]
 	path = src/arduino_sketch/RangeFinder
 	url = https://github.com/Hanz727/RangeFinder
+[submodule "src/remote_control"]
+	path = src/remote_control
+	url = https://github.com/Hanz727/remote_control
