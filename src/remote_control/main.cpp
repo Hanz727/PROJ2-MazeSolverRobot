@@ -183,13 +183,21 @@ int main() {
     if (hSerial == INVALID_HANDLE_VALUE)
         return EXIT_FAILURE;
     
-    WriteToCOMPort(hSerial, "CONNECTED\n");
-    
     while (1) {
-        if (IsDataAvailable(hSerial)) {
-            std::cout << ReadFromCOMPort(hSerial) << "\n";
+        std::string msg;
+        std::getline(std::cin, msg);
+        msg += "\n";
+        if (msg.size() < 2)
+            continue;
+        WriteToCOMPort(hSerial, msg);
+
+        std::string read; 
+        while (IsDataAvailable(hSerial) || read.size() <= 1) {
+            read = ReadFromCOMPort(hSerial); 
+            std::cout << "Recv>> " << read << "\n";
+            
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
 
     CloseHandle(hSerial);
