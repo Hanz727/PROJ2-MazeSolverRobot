@@ -138,33 +138,43 @@ namespace Bluetooth {
         std::string result = "";
         char ch;
         DWORD bytesRead;
+        DWORD startTime = GetTickCount();
+        DWORD timeout = 5000;
+
         while (true) {
+            // Attempt to read a single byte from the serial port
             if (ReadFile(hSerial, &ch, 1, &bytesRead, NULL) && bytesRead > 0) {
-                if (ch == '\n' || ch == '\0') {
+                if (ch == '\n' || ch == '\0') 
                     break;
-                };
                 result += ch;
-            } else {
-                if (bytesRead > 0) {
-                    std::cerr << "Error reading from COM port!" << std::endl;
-                    std::cout << GetLastError() << "\n";
-                    return "";
-                }
+                continue;
             }
+
+            DWORD error = GetLastError();
+            if (error == ERROR_IO_PENDING) {
+                if (GetTickCount() - startTime > timeout) {
+                    std::cerr << "Timeout while reading from COM port!" << std::endl;
+                    return ""; 
+                }
+                continue; 
+            }
+
+            std::cerr << "Error reading from COM port! Error code: " << error << std::endl;
+            return ""; 
+
         }
-        return result;
-    }
+        return result; // Return the collected result
+    }    
 
     bool available(HANDLE hSerial) {
         DWORD dwErrors;
         COMSTAT comStat;
 
-        // Get communication status
         if (!ClearCommError(hSerial, &dwErrors, &comStat)) {
             std::cerr << "Error checking COM port status!" << std::endl;
             return false;
         }
-        // Check if there's data in the input buffer
+
         return comStat.cbInQue > 0;  // cbInQue is the number of bytes in the input buffer
     }
 
@@ -203,7 +213,7 @@ int main() {
     HANDLE hSerial = Bluetooth::OpenCOMPort(COMPort);
     if (hSerial == INVALID_HANDLE_VALUE)
         return EXIT_FAILURE;
-    
+
     while (Bluetooth::available(hSerial)) {
         Bluetooth::readLine(hSerial);
     }
@@ -219,16 +229,31 @@ int main() {
         if (msg.size() < 2) {
             continue;
         }
-
+        
+        // send the command
         Bluetooth::writeString(hSerial, msg);
 
-        std::string read; 
-        while (Bluetooth::available(hSerial) || read.size() <= 1) {
-            read = Bluetooth::readLine(hSerial); 
-            if (read.size() > 0)
-                std::cout << "\t[<<] " << read << "\n";
+        std::string recvMsg; 
+        auto t1 = std::chrono::high_resolution_clock::now();
+        std::chrono::milliseconds timeoutTimer(0);
+        while (Bluetooth::available(hSerial) || recvMsg.size() <= 1) {
+            if (!Bluetooth::available(hSerial)) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1)); // don't stress the pc too much
+                timeoutTimer = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1); 
+                if (timeoutTimer >= std::chrono::milliseconds(1000))  { // timeout after 1s
+                    break;
+                }
+
+                continue;
+            }
             
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            recvMsg = Bluetooth::readLine(hSerial); 
+            if (recvMsg.size() > 0)
+                std::cout << "\t[<<] " << recvMsg << "\n";
+            
+            // Leave time for a timed out message to become available. Prevents backlog.
+            if (recvMsg.size() > 1) 
+                std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
     }
 

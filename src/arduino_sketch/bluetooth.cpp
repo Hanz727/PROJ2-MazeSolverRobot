@@ -20,7 +20,7 @@ void handleBluetoothCmds(uint8_t& width, uint8_t& height, bool& start) {
     if (Bluetooth.available()) {
         String buffer;
         buffer = Bluetooth.readStringUntil('\n'); // Read single full message
-        Bluetooth.flush();
+        //Bluetooth.flush();
         buffer.toUpperCase();
         Serial.println(buffer);
 
