@@ -29,6 +29,7 @@ void loop() {
   // RESET -> reset button on arduino
   //
   // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
+  // gStart = true;
   handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart);
 
   // wait until started
@@ -37,11 +38,23 @@ void loop() {
 
   if (!initialized) {
     // Init after starting from bluetooth
-    mazeSolver.init(4.0, 20.0, 20.0, gMazeWidth*2-1, gMazeHeight*2-1, {gMazeWidth-1, gMazeHeight-1}, {-1,-1}, true);
+    mazeSolver.init(4.0,  // 4cm walls (MEASURED!)
+                    20.0, // cell width NOT MEASURED YET
+                    20.0, // cell height NOT MEASURED YET
+                    gMazeWidth*2-1, 
+                    gMazeHeight*2-1, 
+                    {gMazeWidth-1, gMazeHeight-1}, 
+                    {-1,-1}, 
+                    true // blind mode on
+    );
     initialized = true;
   }
 
-  // put your main code here, to run repeatedly:
+  // update ultrasonic distances
   rangeFinder.update();
+  double leftCm = rangeFinder.getDistance(0);
+  double rightCm = rangeFinder.getDistance(1);
+  double centerCm = rangeFinder.getDistance(2);
+
 
 }
