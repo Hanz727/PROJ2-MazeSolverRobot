@@ -56,5 +56,4 @@ void loop() {
   double rightCm = rangeFinder.getDistance(1);
   double centerCm = rangeFinder.getDistance(2);
 
-
 }
