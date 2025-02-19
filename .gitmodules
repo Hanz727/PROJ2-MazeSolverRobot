@@ -4,3 +4,6 @@
 [submodule "src/arduino_sketch/RangeFinder"]
 	path = src/arduino_sketch/RangeFinder
 	url = https://github.com/Hanz727/RangeFinder
+[submodule "src/arduino_sketch/ShieldMotor"]
+	path = src/arduino_sketch/ShieldMotor
+	url = https://github.com/duifmika/ShieldMotor
