@@ -62,4 +62,7 @@ void loop() {
   double rightCm = rangeFinder.getDistance(1);
   double centerCm = rangeFinder.getDistance(2);
 
+  // Example motor usage:
+  //motorFrontLeft.run(FORWARD, 255);
+
 }
