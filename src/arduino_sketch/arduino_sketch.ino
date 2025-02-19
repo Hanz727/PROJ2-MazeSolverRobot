@@ -1,11 +1,17 @@
 #include "RangeFinder.h"
 #include "MazeSolver.h"
 #include "bluetooth.h"
+#include "ShieldMotor.h"
 
 const uint8_t rangeFinderpins[6] = {22, 23, 24, 25, 28, 29};
 
 RangeFinder rangeFinder;
 MazeSolver mazeSolver;
+
+ShieldMotor motorFrontLeft(3);
+ShieldMotor motorFrontRight(4);
+ShieldMotor motorBackLeft(2);
+ShieldMotor motorBackRight(1);
 
 uint8_t gMazeWidth = 7;
 uint8_t gMazeHeight = 7;
