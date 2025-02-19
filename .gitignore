@@ -7,5 +7,6 @@
 *.exe
 *.png
 *.zip
+.clangd
 
 **/__pycache__/
