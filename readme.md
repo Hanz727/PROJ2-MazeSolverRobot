@@ -15,9 +15,10 @@ There are more steps for simulator and arduino_sketch. Follow their respective i
 📦 PROJ2-MazeSolverRobot
 ├── 📂 src                       # Source code files
 │   ├── 📂 arduino_sketch        # Everything that goes on the microcontroller
-│   │   ├── arduino_sketch.ino   # (WIP) The main sketch that is to be uploaded to the microcontroller
+│   │   ├── arduino_sketch.ino   # The main sketch that is to be uploaded to the microcontroller
 │   │   ├── bluetooth.h          # All bluetooth commands. 
 │   │   ├── MazeSolver           # Lib that solves the maze
+│   │   ├── ShieldMotor          # Motor control
 │   │   └── RangeFinder          # Lib that measures range from ultrasonic sensors
 │   ├── 📂 simulator             # Python simulator for testing and visualizing path finding algorithms
 │   │   ├── 📂 mazes             # Pngs for simulator
