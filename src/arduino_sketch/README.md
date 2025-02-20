@@ -7,6 +7,13 @@ This sketch will be uploaded to the microcontroller on the physical robot.
 git clone --recursive https://github.com/Hanz727/PROJ2-MazeSolverRobot.git
 ```
 
+### Automatic
+1. Launch the installer, either bat or sh (for mac).
+2. For .sh file you need to use the console command `./install_libs_mac.sh`.
+3. If it says No Permission use `chmod +x install_libs_mac.sh` and repeat step 2.
+
+### Manual
+
 1. Go to /PROJ2-MazeSolverRobot/src/arduino_sketch/
 2. Send MazeSolver and RangeFinder to .zip
 3. arduino IDE -> File -> open -> arduino_sketch.ino
