@@ -2,6 +2,7 @@
 #include "MazeSolver.h"
 #include "bluetooth.h"
 #include "ShieldMotor.h"
+#include "MotionControl.h"
 
 const uint8_t rangeFinderpins[6] = {22, 23, 24, 25, 28, 29};
 
@@ -12,6 +13,8 @@ ShieldMotor motorFrontLeft(3);
 ShieldMotor motorFrontRight(4);
 ShieldMotor motorBackLeft(2);
 ShieldMotor motorBackRight(1);
+
+MotionControl motionController;
 
 uint8_t gMazeWidth = 7;
 uint8_t gMazeHeight = 7;
@@ -44,15 +47,26 @@ void loop() {
 
   if (!initialized) {
     // Init after starting from bluetooth
-    mazeSolver.init(4.0,  // 4cm walls (MEASURED!)
-                    20.0, // cell width NOT MEASURED YET
-                    20.0, // cell height NOT MEASURED YET
-                    gMazeWidth*2-1, 
-                    gMazeHeight*2-1, 
-                    {gMazeWidth-1, gMazeHeight-1}, 
-                    {-1,-1}, 
-                    true // blind mode on
+    mazeSolver.init(
+        4.0,  // 4cm walls (MEASURED!)
+        20.0, // cell width NOT MEASURED YET
+        20.0, // cell height NOT MEASURED YET
+        gMazeWidth*2-1, 
+        gMazeHeight*2-1, 
+        {gMazeWidth-1, gMazeHeight-1}, 
+        {-1,-1}, 
+        true // blind mode on
     );
+
+    motionController.init(
+        20.0, // cell width NOT MEASURED YET
+        4.0,  // 4cm walls
+        &motorFrontLeft,
+        &motorFrontRight,
+        &motorBackLeft,
+        &motorBackRight
+    );
+
     initialized = true;
   }
 
