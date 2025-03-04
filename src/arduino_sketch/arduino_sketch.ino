@@ -32,6 +32,16 @@ void setup() {
     Bluetooth.begin(9600);
 }
 
+bool validateRange(double a, double b, double c) {
+    if ( a > 350.)
+        return false;
+    if ( b > 350.)
+        return false;
+    if ( c > 350.)
+        return false;
+    return true;
+}
+
 void markWalls() {
     double carRotation = motionController.getCarRotation();
     vec2<double> carPos = mazeSolver.getCurrPos(); 
@@ -93,6 +103,10 @@ void loop() {
     double leftCm = rangeFinder.getDistance(0);
     double rightCm = rangeFinder.getDistance(1);
     double centerCm = rangeFinder.getDistance(2);
+
+    // check if the readings are realistic
+    if (!validateRange(leftCm, rightCm, centerCm))
+        return;
 
     // TODO: 
     // 1. update current position
