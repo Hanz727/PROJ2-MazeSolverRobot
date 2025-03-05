@@ -29,8 +29,7 @@ void setup() {
     // put your setup code here, to run once:
     rangeFinder.init(rangeFinderpins, 3, ULTRASONIC_HC_SR04);
     Serial.begin(9600);
-    //Bluetooth.begin(9600);
-    Serial2.begin(38400);
+    Bluetooth.begin(9600);
 }
 
 bool validateRange(double a, double b, double c) {
@@ -67,7 +66,7 @@ void loop() {
     // RESET -> reset button on arduino
     //
     // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
-    //handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart);
+    handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart);
     // gStart = true;
 
     // wait until started
