@@ -33,11 +33,11 @@ void setup() {
 }
 
 bool validateRange(double a, double b, double c) {
-    if ( a > 350.)
+    if ( a > 330.)
         return false;
-    if ( b > 350.)
+    if ( b > 330.)
         return false;
-    if ( c > 350.)
+    if ( c > 330.)
         return false;
     return true;
 }
