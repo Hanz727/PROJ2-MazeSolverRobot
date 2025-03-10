@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Set paths
-ARDUINO_LIB="$HOME/Library/Arduino15/libraries"
+ARDUINO_LIB="$HOME/Arduino/libraries"  # Updated path for Linux
 SOURCE_DIR="$(pwd)"
 
 # List of libraries to update
@@ -13,10 +13,10 @@ echo "Updating Arduino libraries..."
 for LIB in "${LIBRARIES[@]}"; do
     echo "Removing $LIB..."
     rm -rf "$ARDUINO_LIB/$LIB"
-    
+
     echo "Copying $LIB..."
     cp -R "$SOURCE_DIR/$LIB" "$ARDUINO_LIB/$LIB"
 done
 
 echo "Done!"
-read -p "Press Enter to exit..."
+read -p "Press Enter to exit..."  # Keeps the terminal open until Enter is pressed
