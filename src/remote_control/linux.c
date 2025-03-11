@@ -1,4 +1,4 @@
-#include <clocale>
+#include <locale.h>
 #include <ncurses.h>
 #include <string.h>
 #include <unistd.h>
@@ -236,7 +236,7 @@ void* recv_loop(void* arg) {
 
 void input_loop() {
     while (1) {
-        char input[MAX_INPUT_SIZE]{0};
+        char input[MAX_INPUT_SIZE] = {0};
         wrefresh(output_window);
         refresh_input_window();
 

@@ -1,4 +1,4 @@
-project('remote_control', 'cpp',
+project('remote_control', ['c','cpp'],
   version : '0.1',
   default_options : ['warning_level=3', 'cpp_std=c++14'])
 
@@ -10,7 +10,7 @@ if host_machine.system() == 'windows'
     srcs = files('windows.cpp')
 elif host_machine.system() == 'linux'
     exe_name = 'remote_control'
-    srcs = files('linux.cpp')
+    srcs = files('linux.c')
 else
     error('Unsupported platform')
 endif
