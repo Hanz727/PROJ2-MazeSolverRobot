@@ -109,7 +109,7 @@ void check_device(const char *device) {
 void list_com_ports() {
     DIR *dir = opendir("/dev");
     if (dir == NULL) {
-        perror("Unable to open /dev directory");
+        print_safe("Unable to open /dev directory");
         return;
     }
 
@@ -135,7 +135,7 @@ int open_serial_port(const char* port) {
     int fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd == -1) {
         print_safe("Error opening com port");
-        _exit(1);
+        return 0;
     }
 
     return fd;
@@ -143,13 +143,16 @@ int open_serial_port(const char* port) {
 
 
 void configure_serial_port(int fd) {
+    if (!fd)
+        return;
+
     struct termios tty;
     memset(&tty, 0, sizeof(tty));
 
     // Get the current configuration of the serial port
     if (tcgetattr(fd, &tty) != 0) {
-        perror("Error getting port attributes");
-        _exit(1);
+        print_safe("Error getting port attributes");
+        return;
     }
 
     // Set the baud rate (9600 in this case)
@@ -172,12 +175,15 @@ void configure_serial_port(int fd) {
 
     // Set the new attributes
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-        perror("Error setting port attributes");
-        _exit(1);
+        print_safe("Error setting port attributes");
+        return;
     }
 }
 
 void read_full_message(int fd) {
+    if (!fd)
+        return;
+    
     char buf[1024];
     int total_bytes = 0;
     int n;
@@ -210,6 +216,9 @@ void read_full_message(int fd) {
 }
 
 void write_to_port(int fd, const char *data) {
+    if (!fd)
+        return;
+    
     int n = write(fd, data, strlen(data));
     if (n < 0) {
         print_safe("Error writing to serial port");
@@ -238,8 +247,8 @@ void input_loop() {
 
         write_to_port(hCom, input);
 
-        if (strcmp(input, "/exit") == 0) break; // Exit command
-        if (strcmp(input, "/ls") == 0) list_com_ports(); // Exit command
+        if (strcmp(input, "/exit\n") == 0) break; // Exit command
+        if (strcmp(input, "/ls\n") == 0) list_com_ports(); // Exit command
     }
     
     running = false;
