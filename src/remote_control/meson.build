@@ -2,7 +2,7 @@ project('remote_control', ['c','cpp'],
   version : '0.1',
   default_options : ['warning_level=3', 'cpp_std=c++14'])
 
-ncurses_dep = dependency('ncurses', required: true)
+ncurses_dep = []
 
 # Check the platform and define the sources and executable name
 if host_machine.system() == 'windows'
@@ -11,6 +11,8 @@ if host_machine.system() == 'windows'
 elif host_machine.system() == 'linux'
     exe_name = 'remote_control'
     srcs = files('linux.c')
+    srcs = files('linux.cpp')
+    ncurses_dep = dependency('ncurses', required: true)
 else
     error('Unsupported platform')
 endif
