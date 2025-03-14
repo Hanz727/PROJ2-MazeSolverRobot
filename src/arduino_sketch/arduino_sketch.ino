@@ -16,8 +16,8 @@ ShieldMotor motorBackRight(1);
 
 MotionControl motionController;
 
-uint8_t gMazeWidth = 7;
-uint8_t gMazeHeight = 7;
+int8_t gMazeWidth = 7;
+int8_t gMazeHeight = 7;
 bool gStart = false;
 
 const double gCarWidth = 15.8; // cm
@@ -86,7 +86,7 @@ void loop() {
         28.0, 
         gMazeWidth*2-1, 
         gMazeHeight*2-1, 
-        {gMazeWidth-1, gMazeHeight-1}, 
+        {(int8_t)(gMazeWidth-1), (int8_t)(gMazeHeight-1)}, 
         {-1,-1}, 
         true // blind mode on
         );
@@ -120,7 +120,7 @@ void loop() {
     markWalls();
   }
 
-  static vec2<int> nextMove = mazeSolver.getNextMove(motionController.getHeading());
+  static vec2<int8_t> nextMove = mazeSolver.getNextMove(motionController.getHeading());
 
   // 3. Make this function (move from A to B)
   bool arrived = motionController.drive(carPos.x, carPos.y, nextMove.x, nextMove.y);

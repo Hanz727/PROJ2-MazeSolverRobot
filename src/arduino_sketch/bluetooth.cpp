@@ -15,7 +15,7 @@ void resetArduino() {
 }
 
 
-void handleBluetoothCmds(uint8_t& width, uint8_t& height, bool& start) {
+void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start) {
     bool validCommand = false;
     if (Bluetooth.available()) {
         String buffer;
