@@ -15,8 +15,7 @@ void resetArduino() {
 }
 
 
-void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start) {
-    bool validCommand = false;
+void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forward)(), void (*backward)(), void (*left)(), void (*right)(), void (*spin)()) {
     if (Bluetooth.available()) {
         String buffer;
         buffer = Bluetooth.readStringUntil('\n'); // Read single full message
@@ -26,7 +25,7 @@ void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start) {
 
         if (startsWith(buffer, "GET DIM")) {
           Bluetooth.println(String(width) + "x" + String(height));
-          validCommand = true;
+          return;
         }
 
         if (startsWith(buffer, "SET DIM")) {
@@ -36,29 +35,48 @@ void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start) {
             width = widthStr.toInt();
             height = heightStr.toInt();
             Bluetooth.println("New dims: " + String(width) + "x" + String(height));
-            validCommand = true;
+            return;
+        }
+
+        if (startsWith(buffer, "FORWARD")) {
+            forward();
+            Bluetooth.println("moving...");
+            return;
+        }
+        if (startsWith(buffer, "BACKWARD")) {
+            backward();
+            Bluetooth.println("moving...");
+            return; 
+        }
+        if (startsWith(buffer, "LEFT")) {
+            left();
+            Bluetooth.println("moving...");
+            return;
+        }
+        if (startsWith(buffer, "RIGHT")) {
+            right();
+            Bluetooth.println("moving...");
+            return;
         }
 
         if (startsWith(buffer, "START")) {
           start = true;
           Bluetooth.println("Starting program...");
-          validCommand = true;
+          return;
         }
 
         if (startsWith(buffer, "STOP")) {
           start = false;
           Bluetooth.println("Stopping program...");
-          validCommand = true;
+          return;
         }
 
         if (startsWith(buffer, "RESET")) {
           Bluetooth.println("Resetting program...");
           resetArduino();
-          validCommand = true;
+          return;
         }
 
-        if (!validCommand) {
-          Bluetooth.println("Invalid command");
-        }
+        Bluetooth.println("Invalid command");
     }
 }
