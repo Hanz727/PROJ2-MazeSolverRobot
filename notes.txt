@@ -32,3 +32,4 @@ contract
 
 motor aansturing ( timen )
 positie ( muis sensor, accelerometer mpu6050, timen )
+

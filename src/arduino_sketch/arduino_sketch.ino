@@ -70,8 +70,8 @@ void loop() {
   // RESET -> reset button on arduino
   //
   // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
-  handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart);
-  // gStart = true;
+  //handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart);
+  gStart = true;
 
   // wait until started
   if (!gStart)
@@ -108,7 +108,9 @@ void loop() {
   double leftCm = rangeFinder.getDistance(0);
   double rightCm = rangeFinder.getDistance(1);
   double centerCm = rangeFinder.getDistance(2);
-
+  
+  Serial.println(centerCm);
+  return;
   // TODO: 
   // 1. update current position
   // mazeSolver.setCurrPos({x, y});
@@ -127,6 +129,7 @@ void loop() {
 
   if (arrived) {
     nextMove = mazeSolver.getNextMove(motionController.getHeading());
+    motionController.drive(carPos.x, carPos.y, nextMove.x, nextMove.y);
   }
 
 }
