@@ -18,14 +18,15 @@ MotionControl motionController;
 
 int8_t gMazeWidth = 7;
 int8_t gMazeHeight = 7;
+
 double gCellWidthCm = 28.;
 double gCellHeightCm = 28.;
+double gWallWidthCm = 4.2;
+const double gCarWidthCm = 15.8; 
+const double gCarLengthCm = 26.;
+
 bool gStart = false;
-
-const double gCarWidth = 15.8; // cm
-const double gCarLength = 26.; // cm
-
-bool initialized = false;
+bool gInitialized = false;
 vec2<double> gCarPos = {6,6};
 
 void setup() {
@@ -41,10 +42,8 @@ void markWalls() {
     double sinR = sin(carRotation);
     double cosR = cos(carRotation);
 
-    double w = gCarWidth / 2.;
-    double h = gCarLength / 2.;
-
-    // Maybe add aditional conditions for distance correctness!
+    double w = gCarWidthCm / 2.;
+    double h = gCarLengthCm / 2.;
 
     double left = rangeFinder.getDistance(0);
     if (left < 45.) {
@@ -66,18 +65,18 @@ void markWalls() {
 void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double centerCm) {
     int offx = 0;
 
-    if (leftCm > 0 && leftCm <= (gCellWidthCm - gCarWidth)) {
-        offx = -1 + (leftCm + gCarWidth/2)/(gCellWidthCm/2);
-    } else if (rightCm > 0 && rightCm <= (gCellWidthCm - gCarWidth)){
-        offx = 1 - (rightCm + gCarWidth/2)/(gCellWidthCm/2);
+    if (leftCm > 0 && leftCm <= (gCellWidthCm - gCarWidthCm)) {
+        offx = -1 + (leftCm + gCarWidthCm/2)/(gCellWidthCm/2);
+    } else if (rightCm > 0 && rightCm <= (gCellWidthCm - gCarWidthCm)){
+        offx = 1 - (rightCm + gCarWidthCm/2)/(gCellWidthCm/2);
     }
 
     CompassDir rot = mazeSolver.radiansToDirection(motionController.getCarRotation());
-    if (rot == South || rot == West){
+    if (rot == South || rot == West) {
         offx = -offx;
     }
 
-    if (rot == East){
+    if (rot == East || rot == West) {
         carPos.y = carPos.y + offx;
         return;
     }
@@ -85,7 +84,12 @@ void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double cen
 }
 
 void generalPos(vec2<double>& carPos) {
-  
+    // This function should set the carPos to the appropriate general integer position.
+    // Example: (6,6) or (3,5).
+    // Negative coordinates do not exist
+    // If exactly between walls or close to being there the function should set carPos to (x, y.5) or (x.5, y)
+    // depending on heading.
+    // For example if heading north and between the two cells the position could be (6, 5.5)
 }
 
 void demo_forward() {
@@ -97,12 +101,12 @@ void demo_forward() {
     motorFrontRight.setSpeed(120);
     motorBackLeft.setSpeed(120);
     motorBackRight.setSpeed(120);
-    delay(500);
+    delay(1000);
     motorFrontLeft.setSpeed(255);
     motorFrontRight.setSpeed(255);
     motorBackLeft.setSpeed(255);
     motorBackRight.setSpeed(255);
-    delay(500);
+    delay(1000);
     motorFrontLeft.run(RELEASE);
     motorFrontRight.run(RELEASE);
     motorBackLeft.run(RELEASE);
@@ -181,55 +185,57 @@ void loop() {
     // START -> starts the program (and initializes)
     // STOP  -> stops the program
     // RESET -> reset button on arduino
+    // FORWARD -> calls demo_forward func
+    // BACKWARD
+    // LEFT
+    // RIGHT
+    // SPIN
     //
     // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
     handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart, demo_forward, demo_backward, demo_left, demo_right, demo_spin);
     //gStart = true;
 
-    // wait until started
+    // wait until START cmd 
     if (!gStart)
         return;
 
-    if (!initialized) {
+    if (!gInitialized) {
         // Init after starting from bluetooth
         mazeSolver.init(
-                4.0,
-                28.0,
-                28.0, 
+                gWallWidthCm,
+                gCellWidthCm,
+                gCellHeightCm, 
                 gMazeWidth*2-1, 
                 gMazeHeight*2-1, 
                 {(int8_t)(gMazeWidth-1), (int8_t)(gMazeHeight-1)}, 
                 {-1,-1}, 
                 true // blind mode on
-                );
+            );
+        gCarPos = mazeSolver.getCurrPos();
 
         motionController.init(
-                28.0, 
-                4.0, 
+                gCellWidthCm, 
+                gWallWidthCm, 
                 &motorFrontLeft,
                 &motorFrontRight,
                 &motorBackLeft,
                 &motorBackRight
-                );
+            );
 
-        initialized = true;
+        gInitialized = true;
     }
 
-    // update ultrasonic distances
     rangeFinder.update();
     double leftCm = rangeFinder.getDistance(0);
     double rightCm = rangeFinder.getDistance(1);
     double centerCm = rangeFinder.getDistance(2);
 
-    // TODO: update general position into the gCarPos variable
-    generalPos(gCarPos);
+    generalPos(gCarPos); // TODO: update gCarPos to be either a cell (6,6) or between cells (6, 5.5). 
     accuratePos(gCarPos, leftCm, rightCm, centerCm);
     mazeSolver.setCurrPos(gCarPos);
 
-    // 2. Ensure car is relatively parallel to the walls before calling markWalls()
-    if (true) {
-        markWalls();
-    }
+    // CAR CAN'T BE AT AN ANGLE HERE!!!
+    markWalls();
 
     static vec2<int8_t> nextMove = mazeSolver.getNextMove(motionController.getHeading());
 
