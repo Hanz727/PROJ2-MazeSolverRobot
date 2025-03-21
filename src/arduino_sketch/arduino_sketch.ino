@@ -239,12 +239,10 @@ void loop() {
 
     static vec2<int8_t> nextMove = mazeSolver.getNextMove(motionController.getHeading());
 
-    // 3. Make this function (move from A to B)
-    bool arrived = motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y);
-
-    if (arrived) {
+    if (motionController.calculateDistance(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y) < 4) {
         nextMove = mazeSolver.getNextMove(motionController.getHeading());
-        motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y);
     }
+
+    motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y);
 
 }
