@@ -162,7 +162,7 @@ void demo_spin() {
     motorBackLeft.setSpeed(255);
     motorBackRight.setSpeed(255);
 
-    delay(1000);
+    delay(450*4);
     motorFrontLeft.run(RELEASE);
     motorFrontRight.run(RELEASE);
     motorBackLeft.run(RELEASE);
