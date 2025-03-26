@@ -83,15 +83,6 @@ void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double cen
     carPos.x = carPos.x + offx;
 }
 
-void generalPos(vec2<double>& carPos) {
-    // This function should set the carPos to the appropriate general integer position.
-    // Example: (6,6) or (3,5).
-    // Negative coordinates do not exist
-    // If exactly between walls or close to being there the function should set carPos to (x, y.5) or (x.5, y)
-    // depending on heading.
-    // For example if heading north and between the two cells the position could be (6, 5.5)
-}
-
 void demo_forward() {
     motorFrontLeft.run(FORWARD);
     motorFrontRight.run(FORWARD);
@@ -230,19 +221,14 @@ void loop() {
     double rightCm = rangeFinder.getDistance(1);
     double centerCm = rangeFinder.getDistance(2);
 
-    generalPos(gCarPos); // TODO: update gCarPos to be either a cell (6,6) or between cells (6, 5.5). 
     accuratePos(gCarPos, leftCm, rightCm, centerCm);
     mazeSolver.setCurrPos(gCarPos);
-
-    // CAR CAN'T BE AT AN ANGLE HERE!!!
     markWalls();
 
     static vec2<int8_t> nextMove = mazeSolver.getNextMove(motionController.getHeading());
-
-    if (motionController.calculateDistance(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y) < 4) {
+    if (motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y, leftCm, rightCm, centerCm)) {
+        gCarPos = nextMove;
         nextMove = mazeSolver.getNextMove(motionController.getHeading());
     }
-
-    motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y);
 
 }
