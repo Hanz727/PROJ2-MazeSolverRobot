@@ -300,9 +300,10 @@ void loop() {
     mazeSolver.setCurrPos(gCarPos);
     markWalls(leftCm, rightCm, centerCm);
     
-    if (motionController.drive(gCarPos.x, gCarPos.y, gNextMove.x, gNextMove.y, leftCm, rightCm, centerCm)) {
-        gCarPos = gNextMove;
+    if (gCarPos == gNextMove) {
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
-    }
+    }   
 
+    motionController.drive(gCarPos.x, gCarPos.y, gNextMove.x, gNextMove.y, leftCm, rightCm, centerCm);
 }
+
