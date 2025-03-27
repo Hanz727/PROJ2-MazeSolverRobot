@@ -19,10 +19,10 @@ MotionControl motionController;
 int8_t gMazeWidth = 7;
 int8_t gMazeHeight = 7;
 
-double gCellWidthCm = 28.;
-double gCellHeightCm = 28.;
-double gWallWidthCm = 4.2;
-const double gCarWidthCm = 15.8; 
+double gCellWidthCm = 26.;   
+double gCellHeightCm = 26.;
+double gWallWidthCm = 4.;
+const double gCarWidthCm = 18.; 
 const double gCarLengthCm = 26.;
 
 bool gStart = false;
@@ -35,29 +35,29 @@ void setup() {
     Bluetooth.begin(9600);
 }
 
-void markWalls() {
+void markWalls(double leftCm, double rightCm, double centerCm) {
     double carRotation = motionController.getCarRotation();
     vec2<double> carPos = mazeSolver.getCurrPos(); 
 
-    double sinR = sin(carRotation);
-    double cosR = cos(carRotation);
+    double sinR = sin(carRotation) / (gCellWidthCm + gWallWidthCm);
+    double cosR = cos(carRotation) / (gCellWidthCm + gWallWidthCm);
 
     double w = gCarWidthCm / 2.;
     double h = gCarLengthCm / 2.;
 
-    double left = rangeFinder.getDistance(0);
-    if (left < 45.) {
-        mazeSolver.markWall(carPos - vec2<double>{w*cosR, w*sinR}, left, carRotation);
+    if (leftCm < 45.) {
+        mazeSolver.markWall(carPos - vec2<double>{w*cosR, w*sinR}, leftCm, carRotation);
     }
 
-    double right = rangeFinder.getDistance(1); 
-    if (right < 45.) {
-        mazeSolver.markWall(carPos + vec2<double>{w*cosR, w*sinR}, right, carRotation);
+    if (rightCm < 45.) {
+        Serial2.println(rightCm);
+        Serial2.println(carRotation);
+        vec2<double> pos = carPos + vec2<double>{w*cosR, w*sinR};
+        mazeSolver.markWall(carPos + vec2<double>{w*cosR, w*sinR}, rightCm, carRotation);
     }
 
-    double center = rangeFinder.getDistance(2);
-    if (center < 45.) {
-        mazeSolver.markWall(carPos + vec2<double>{h*cosR, h*sinR}, center, carRotation);
+    if (centerCm < 45.) {
+        mazeSolver.markWall(carPos + vec2<double>{h*cosR, h*sinR}, centerCm, carRotation);
     }
 
 }
@@ -169,6 +169,12 @@ void demo_spin() {
     motorBackRight.run(RELEASE);
 }
 
+void printDists(double left, double right, double center) {
+    Serial2.println("left: " + String(left));
+    Serial2.println("right: " + String(right));
+    Serial2.println("center: " + String(center));
+}
+
 void loop() {
     // CMD LIST:
     // GET DIM -> sends dimensions as WxH
@@ -217,15 +223,26 @@ void loop() {
     }
 
     rangeFinder.update();
-    double leftCm = rangeFinder.getDistance(0);
-    double rightCm = rangeFinder.getDistance(1);
-    double centerCm = rangeFinder.getDistance(2);
+    double leftCm = rangeFinder.getDistance(0) - 2.5;
+    if (leftCm < 0)
+        leftCm = 0;
+    double rightCm = rangeFinder.getDistance(1) - 2.5;
+    if (rightCm < 0)
+        rightCm = 0;
+    
+    double centerCm = rangeFinder.getDistance(2) - 4;
+    if (centerCm < 0)
+        centerCm = 0;
+
+//printDists(leftCm, rightCm, centerCm);
+//return;
 
     accuratePos(gCarPos, leftCm, rightCm, centerCm);
     mazeSolver.setCurrPos(gCarPos);
-    markWalls();
+    markWalls(leftCm, rightCm, centerCm);
 
     static vec2<int8_t> nextMove = mazeSolver.getNextMove(motionController.getHeading());
+    
     if (motionController.drive(gCarPos.x, gCarPos.y, nextMove.x, nextMove.y, leftCm, rightCm, centerCm)) {
         gCarPos = nextMove;
         nextMove = mazeSolver.getNextMove(motionController.getHeading());
