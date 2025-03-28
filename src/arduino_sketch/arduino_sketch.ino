@@ -51,25 +51,25 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
     double carRotation = motionController.getCarRotation();
     vec2<double> carPos = mazeSolver.getCurrPos(); 
 
-    double sinR = sin(carRotation) / (gCellWidthCm + gWallWidthCm);
-    double cosR = cos(carRotation) / (gCellWidthCm + gWallWidthCm);
-
     double w = gCarWidthCm / 2.;
     double h = gCarLengthCm / 2.;
 
-    if (leftCm < 45.) {
-        mazeSolver.markWall(carPos - vec2<double>{w*cosR, w*sinR}, leftCm, carRotation);
+    if (leftCm < 40.) {
+        if (mazeSolver.markWall(carPos, leftCm+w, carRotation-0.5*PI)) {
+            Bluetooth.println("marked left");
+        }
     }
 
-    if (rightCm < 45.) {
-        Serial2.println(rightCm);
-        Serial2.println(carRotation);
-        vec2<double> pos = carPos + vec2<double>{w*cosR, w*sinR};
-        mazeSolver.markWall(carPos + vec2<double>{w*cosR, w*sinR}, rightCm, carRotation);
+    if (rightCm < 40.) {
+        if (mazeSolver.markWall(carPos, rightCm+w, carRotation+0.5*PI)) {
+            Bluetooth.println("marked right");
+        }
     }
 
-    if (centerCm < 45.) {
-        mazeSolver.markWall(carPos + vec2<double>{h*cosR, h*sinR}, centerCm, carRotation);
+    if (centerCm < 40.) {
+        if (mazeSolver.markWall(carPos, centerCm+h, carRotation)) {
+            Bluetooth.println("marked center");
+        }
     }
 
 }
@@ -89,10 +89,10 @@ void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double cen
     }
 
     if (rot == East || rot == West) {
-        carPos.y = carPos.y + offx;
+        carPos.y = (int)carPos.y + offx;
         return;
     }
-    carPos.x = carPos.x + offx;
+    carPos.x = (int)carPos.x + offx;
 }
 
 void demo_forward() {
@@ -182,45 +182,38 @@ void demo_spin() {
 }
 
 void printDists(double left, double right, double center) {
-    Serial2.println("left: " + String(left));
-    Serial2.println("right: " + String(right));
-    Serial2.println("center: " + String(center));
+    Serial2.print("left: " + String(left));
+    Serial2.print(" right: " + String(right));
+    Serial2.print(" center: " + String(center) + "\n");
 }
 
-void handle_timers(unsigned long& t1, unsigned long& t2) {
+void handle_timers() {
+    static unsigned long t1 = millis();
+
+    gShouldMarkWall = false;
     bool left = !digitalRead(IR_L);
     bool right = !digitalRead(IR_R);
-
-//Bluetooth.println(String(left) + " " + String(right));
 
     static bool lastLeft = left;
     static bool lastRight = right;
     static bool t1started = false;
-    static bool t2started = false;
-    
-    if ((lastLeft != left) || (lastRight != right)) {
-        t1 = millis();
-        t1started = true;
-    }
 
     // delays aanpassen!
-    int delayTime = 400;
+    int delayTime = 200;
     if (motionController.m_driveDir == BACKWARD)
-        delayTime = 50;
+        delayTime = 0;
 
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
+        //gShouldMarkWall = true;
+        Bluetooth.println("pos updated to: " + String(gCarPos.x) + " " + String(gCarPos.y) + " after: " + String(millis() - t1) + "ms");
         t1started = false;
     }
 
-    if ((lastLeft > left) || (lastRight > right)) {
-        t2 = millis();
-        t2started = true;
-    }
-
-    gShouldMarkWall = true;
-    if (millis() - t2 > 50 && millis() - t2 < 150 && t2started) {
-        gShouldMarkWall = false;
+    if ((lastLeft != left) || (lastRight != right)) {
+        //Bluetooth.println("T1 started with: " + String(millis() - t1));
+        t1 = millis();
+        t1started = true;
     }
 
     lastLeft = left;
@@ -229,8 +222,6 @@ void handle_timers(unsigned long& t1, unsigned long& t2) {
 
 
 void loop() {
-    static unsigned long t1 = millis();
-    static unsigned long t2 = millis();
     // CMD LIST:
     // GET DIM -> sends dimensions as WxH
     // SET DIM WxH -> Sets dimensions
@@ -250,6 +241,18 @@ void loop() {
     // wait until START cmd 
     if (!gStart)
         return;
+
+    rangeFinder.update();
+    double leftCm = rangeFinder.getDistance(0) - 2.5;
+    if (leftCm < 0)
+        leftCm = 0;
+    double rightCm = rangeFinder.getDistance(1) - 2.5;
+    if (rightCm < 0)
+        rightCm = 0;
+
+    double centerCm = rangeFinder.getDistance(2) - 4;
+    if (centerCm < 0)
+        centerCm = 0;
 
     if (!gInitialized) {
         // Init after starting from bluetooth
@@ -274,35 +277,27 @@ void loop() {
             &motorBackRight
         );
 
+        markWalls(leftCm, rightCm, centerCm);
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
 
         gInitialized = true;
     }
 
-    rangeFinder.update();
-    double leftCm = rangeFinder.getDistance(0) - 2.5;
-    if (leftCm < 0)
-        leftCm = 0;
-    double rightCm = rangeFinder.getDistance(1) - 2.5;
-    if (rightCm < 0)
-        rightCm = 0;
-    
-    double centerCm = rangeFinder.getDistance(2) - 4;
-    if (centerCm < 0)
-        centerCm = 0;
-
-    handle_timers(t1, t2);
-
-//printDists(leftCm, rightCm, centerCm);
-//return;
-
-    accuratePos(gCarPos, leftCm, rightCm, centerCm);
+    handle_timers();
+    //accuratePos(gCarPos, leftCm, rightCm, centerCm);
     mazeSolver.setCurrPos(gCarPos);
-    markWalls(leftCm, rightCm, centerCm);
-    
+
     if (gCarPos == gNextMove) {
+        Bluetooth.println("braking");
+        motionController.goBrake(1000);
+        
+        gShouldMarkWall = true;
+        printDists(leftCm, rightCm, centerCm);
+        markWalls(leftCm, rightCm, centerCm);
+
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
-    }   
+        Serial2.println("nm: " + String(gNextMove.x) + " " + String(gNextMove.y) );
+    }
 
     motionController.drive(gCarPos.x, gCarPos.y, gNextMove.x, gNextMove.y, leftCm, rightCm, centerCm);
 }
