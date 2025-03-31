@@ -53,25 +53,28 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
 
     double w = gCarWidthCm / 2.;
     double h = gCarLengthCm / 2.;
+    
+    Bluetooth.print("marked ");
 
     if (leftCm < 40.) {
         if (mazeSolver.markWall(carPos, leftCm+w, carRotation-0.5*PI)) {
-            Bluetooth.println("marked left");
+            Bluetooth.print("left ");
         }
     }
 
     if (rightCm < 40.) {
         if (mazeSolver.markWall(carPos, rightCm+w, carRotation+0.5*PI)) {
-            Bluetooth.println("marked right");
+            Bluetooth.print("right ");
         }
     }
 
     if (centerCm < 40.) {
         if (mazeSolver.markWall(carPos, centerCm+h, carRotation)) {
-            Bluetooth.println("marked center");
+            Bluetooth.print("center");
         }
     }
 
+    Bluetooth.println("");
 }
 
 void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double centerCm) {
@@ -187,21 +190,23 @@ void printDists(double left, double right, double center) {
     Serial2.print(" center: " + String(center) + "\n");
 }
 
-void handle_timers() {
+void update_position() {
     static unsigned long t1 = millis();
+    static bool t1started = false;
 
-    gShouldMarkWall = false;
     bool left = !digitalRead(IR_L);
     bool right = !digitalRead(IR_R);
 
     static bool lastLeft = left;
     static bool lastRight = right;
-    static bool t1started = false;
 
-    // delays aanpassen!
+    gShouldMarkWall = false;
+
     int delayTime = 200;
-    if (motionController.m_driveDir == BACKWARD)
+    if (motionController.m_driveDir == BACKWARD) {
+        gShouldMarkWall = true;
         delayTime = 0;
+    }
 
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
@@ -214,6 +219,10 @@ void handle_timers() {
         //Bluetooth.println("T1 started with: " + String(millis() - t1));
         t1 = millis();
         t1started = true;
+    }
+
+    if (left > lastLeft || right > lastRight) {
+        gShouldMarkWall = true;
     }
 
     lastLeft = left;
@@ -257,25 +266,25 @@ void loop() {
     if (!gInitialized) {
         // Init after starting from bluetooth
         mazeSolver.init(
-            gWallWidthCm,
-            gCellWidthCm,
-            gCellHeightCm, 
-            gMazeWidth*2-1, 
-            gMazeHeight*2-1, 
-            {(int8_t)(gMazeWidth-1), (int8_t)(gMazeHeight-1)}, 
-            {-1,-1}, 
-            true // blind mode on
-        );
+                gWallWidthCm,
+                gCellWidthCm,
+                gCellHeightCm, 
+                gMazeWidth*2-1, 
+                gMazeHeight*2-1, 
+                {(int8_t)(gMazeWidth-1), (int8_t)(gMazeHeight-1)}, 
+                {-1,-1}, 
+                true // blind mode on
+                );
         gCarPos = mazeSolver.getCurrPos();
 
         motionController.init(
-            gCellWidthCm, 
-            gWallWidthCm, 
-            &motorFrontLeft,
-            &motorFrontRight,
-            &motorBackLeft,
-            &motorBackRight
-        );
+                gCellWidthCm, 
+                gWallWidthCm, 
+                &motorFrontLeft,
+                &motorFrontRight,
+                &motorBackLeft,
+                &motorBackRight
+                );
 
         markWalls(leftCm, rightCm, centerCm);
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
@@ -283,17 +292,19 @@ void loop() {
         gInitialized = true;
     }
 
-    handle_timers();
+    update_position();
+    // accuratePos changes the pos therefore we cant use it here, unless we cast gCarPos to int in the comparison
     //accuratePos(gCarPos, leftCm, rightCm, centerCm);
     mazeSolver.setCurrPos(gCarPos);
+    markWalls(leftCm, rightCm, centerCm);
 
     if (gCarPos == gNextMove) {
         Bluetooth.println("braking");
         motionController.goBrake(1000);
-        
-        gShouldMarkWall = true;
-        printDists(leftCm, rightCm, centerCm);
-        markWalls(leftCm, rightCm, centerCm);
+
+        //gShouldMarkWall = true;
+        //markWalls(leftCm, rightCm, centerCm);
+//printDists(leftCm, rightCm, centerCm);
 
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
         Serial2.println("nm: " + String(gNextMove.x) + " " + String(gNextMove.y) );
