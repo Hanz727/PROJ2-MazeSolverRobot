@@ -56,21 +56,21 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
     
     Bluetooth.print("marked ");
 
-    if (leftCm < 40.) {
+    if (centerCm < 12.) {
+        if (mazeSolver.markWall(carPos, centerCm+h, carRotation)) {
+            Bluetooth.print("center");
+        }
+    }
+
+    if (leftCm < 12. && gShouldMarkWall) {
         if (mazeSolver.markWall(carPos, leftCm+w, carRotation-0.5*PI)) {
             Bluetooth.print("left ");
         }
     }
 
-    if (rightCm < 40.) {
+    if (rightCm < 12. && gShouldMarkWall) {
         if (mazeSolver.markWall(carPos, rightCm+w, carRotation+0.5*PI)) {
             Bluetooth.print("right ");
-        }
-    }
-
-    if (centerCm < 40.) {
-        if (mazeSolver.markWall(carPos, centerCm+h, carRotation)) {
-            Bluetooth.print("center");
         }
     }
 
@@ -190,7 +190,7 @@ void printDists(double left, double right, double center) {
     Serial2.print(" center: " + String(center) + "\n");
 }
 
-void update_position() {
+void updatePosition() {
     static unsigned long t1 = millis();
     static bool t1started = false;
 
@@ -204,7 +204,6 @@ void update_position() {
 
     int delayTime = 200;
     if (motionController.m_driveDir == BACKWARD) {
-        gShouldMarkWall = true;
         delayTime = 0;
     }
 
@@ -221,16 +220,33 @@ void update_position() {
         t1started = true;
     }
 
-    if (left > lastLeft || right > lastRight) {
-        gShouldMarkWall = true;
+    if (left < lastLeft || right < lastRight) {
+        //gShouldMarkWall = true;
     }
 
     lastLeft = left;
     lastRight = right;
 }
 
+void updateDists(double& l, double& r, double& c) {
+    rangeFinder.update();
+    l = rangeFinder.getDistance(0) - 2.5;
+    r = rangeFinder.getDistance(1) - 2.5;
+    c = rangeFinder.getDistance(2) - 4;
+
+    if (l < 0)
+        l = 0;
+    if (r < 0)
+        r = 0;
+    if (c < 0)
+        c = 0;
+}
 
 void loop() {
+    static double leftCm = 0;
+    static double rightCm = 0;
+    static double centerCm = 0;
+
     // CMD LIST:
     // GET DIM -> sends dimensions as WxH
     // SET DIM WxH -> Sets dimensions
@@ -250,18 +266,6 @@ void loop() {
     // wait until START cmd 
     if (!gStart)
         return;
-
-    rangeFinder.update();
-    double leftCm = rangeFinder.getDistance(0) - 2.5;
-    if (leftCm < 0)
-        leftCm = 0;
-    double rightCm = rangeFinder.getDistance(1) - 2.5;
-    if (rightCm < 0)
-        rightCm = 0;
-
-    double centerCm = rangeFinder.getDistance(2) - 4;
-    if (centerCm < 0)
-        centerCm = 0;
 
     if (!gInitialized) {
         // Init after starting from bluetooth
@@ -286,30 +290,30 @@ void loop() {
                 &motorBackRight
                 );
 
+        updateDists(leftCm, rightCm, centerCm);
         markWalls(leftCm, rightCm, centerCm);
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
 
         gInitialized = true;
     }
 
-    update_position();
-    // accuratePos changes the pos therefore we cant use it here, unless we cast gCarPos to int in the comparison
-    //accuratePos(gCarPos, leftCm, rightCm, centerCm);
+    updatePosition();
     mazeSolver.setCurrPos(gCarPos);
-    markWalls(leftCm, rightCm, centerCm);
+    updateDists(leftCm, rightCm, centerCm);
+    //markWalls(leftCm, rightCm, centerCm);
 
     if (gCarPos == gNextMove) {
-        Bluetooth.println("braking");
-        motionController.goBrake(1000);
-
-        //gShouldMarkWall = true;
-        //markWalls(leftCm, rightCm, centerCm);
-//printDists(leftCm, rightCm, centerCm);
+        motionController.goBrake();
+        updateDists(leftCm, rightCm, centerCm);
+        printDists(leftCm, rightCm, centerCm);
+        gShouldMarkWall = true;
+        markWalls(leftCm, rightCm, centerCm);
 
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
         Serial2.println("nm: " + String(gNextMove.x) + " " + String(gNextMove.y) );
     }
 
+    //updateDists(leftCm, rightCm, centerCm);
     motionController.drive(gCarPos.x, gCarPos.y, gNextMove.x, gNextMove.y, leftCm, rightCm, centerCm);
 }
 
