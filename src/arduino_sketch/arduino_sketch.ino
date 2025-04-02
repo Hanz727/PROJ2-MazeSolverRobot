@@ -149,7 +149,7 @@ void updatePosition() {
 
     gShouldMarkWall = false;
 
-    int delayTime = 200;
+    int delayTime = 150;
     if (motionController.m_driveDir == BACKWARD) {
         delayTime = 50;
     }
