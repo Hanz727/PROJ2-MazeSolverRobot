@@ -40,6 +40,15 @@ void setup() {
     Serial.begin(9600);
     Bluetooth.begin(9600);
 
+    motionController.init(
+        gCellWidthCm, 
+        gWallWidthCm, 
+        &motorFrontLeft,
+        &motorFrontRight,
+        &motorBackLeft,
+        &motorBackRight
+        );
+
     pinMode(IR_L, INPUT);
     pinMode(IR_R, INPUT);
 }
@@ -99,89 +108,27 @@ void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double cen
 }
 
 void demo_forward() {
-    motorFrontLeft.run(FORWARD);
-    motorFrontRight.run(FORWARD);
-    motorBackLeft.run(FORWARD);
-    motorBackRight.run(FORWARD);
-    motorFrontLeft.setSpeed(120);
-    motorFrontRight.setSpeed(120);
-    motorBackLeft.setSpeed(120);
-    motorBackRight.setSpeed(120);
+    motionController.goForward();
     delay(1000);
-    motorFrontLeft.setSpeed(255);
-    motorFrontRight.setSpeed(255);
-    motorBackLeft.setSpeed(255);
-    motorBackRight.setSpeed(255);
-    delay(1000);
-    motorFrontLeft.run(RELEASE);
-    motorFrontRight.run(RELEASE);
-    motorBackLeft.run(RELEASE);
-    motorBackRight.run(RELEASE);
+    motionController.goBrake();
 }
 
 void demo_backward() {
-    motorFrontLeft.run(BACKWARD);
-    motorFrontRight.run(BACKWARD);
-    motorBackLeft.run(BACKWARD);
-    motorBackRight.run(BACKWARD);
-    motorFrontLeft.setSpeed(255);
-    motorFrontRight.setSpeed(255);
-    motorBackLeft.setSpeed(255);
-    motorBackRight.setSpeed(255);
+    motionController.goBackward();
     delay(1000);
-    motorFrontLeft.run(RELEASE);
-    motorFrontRight.run(RELEASE);
-    motorBackLeft.run(RELEASE);
-    motorBackRight.run(RELEASE);
+    motionController.goBrake();
 }
 
 void demo_left() {
-    motorFrontLeft.run(BACKWARD);
-    motorFrontRight.run(FORWARD);
-    motorBackLeft.run(FORWARD);
-    motorBackRight.run(BACKWARD);
-    motorFrontLeft.setSpeed(255);
-    motorFrontRight.setSpeed(255);
-    motorBackLeft.setSpeed(255);
-    motorBackRight.setSpeed(255);
-    delay(1000);
-    motorFrontLeft.run(RELEASE);
-    motorFrontRight.run(RELEASE);
-    motorBackLeft.run(RELEASE);
-    motorBackRight.run(RELEASE);
+    motionController.goLeft();
 }
 
 void demo_right() {
-    motorFrontLeft.run(FORWARD);
-    motorFrontRight.run(BACKWARD);
-    motorBackLeft.run(BACKWARD);
-    motorBackRight.run(FORWARD);
-    motorFrontLeft.setSpeed(255);
-    motorFrontRight.setSpeed(255);
-    motorBackLeft.setSpeed(255);
-    motorBackRight.setSpeed(255);
-    delay(1000);
-    motorFrontLeft.run(RELEASE);
-    motorFrontRight.run(RELEASE);
-    motorBackLeft.run(RELEASE);
-    motorBackRight.run(RELEASE);
+    motionController.goRight();
 }
 
-void demo_spin() {
-    motorFrontLeft.run(FORWARD);
-    motorFrontRight.run(BACKWARD);
-    motorBackLeft.run(FORWARD);
-    motorBackRight.run(BACKWARD);
-    motorFrontLeft.setSpeed(255);
-    motorFrontRight.setSpeed(255);
-    motorBackLeft.setSpeed(255);
-    motorBackRight.setSpeed(255);
-
-    delay(450*4);
-    motorFrontLeft.run(RELEASE);
-    motorFrontRight.run(RELEASE);
-    motorBackLeft.run(RELEASE);
-    motorBackRight.run(RELEASE);
+void configSetTurnTime(int16_t time) {
+    motionController.setRotTime(time);
 }
 
 void printDists(double left, double right, double center) {
@@ -204,7 +151,7 @@ void updatePosition() {
 
     int delayTime = 200;
     if (motionController.m_driveDir == BACKWARD) {
-        delayTime = 0;
+        delayTime = 50;
     }
 
     if (millis() - t1 >= delayTime && t1started) {
@@ -214,14 +161,16 @@ void updatePosition() {
         t1started = false;
     }
 
-    if ((lastLeft != left) || (lastRight != right)) {
+    if (((lastLeft != left) || (lastRight != right)) && motionController.m_driveDir != BACKWARD) {
         //Bluetooth.println("T1 started with: " + String(millis() - t1));
         t1 = millis();
         t1started = true;
     }
 
-    if (left < lastLeft || right < lastRight) {
+    if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD) {
         //gShouldMarkWall = true;
+        t1 = millis();
+        t1started = true;
     }
 
     lastLeft = left;
@@ -260,7 +209,7 @@ void loop() {
     // SPIN
     //
     // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
-    handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart, demo_forward, demo_backward, demo_left, demo_right, demo_spin);
+    handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart, demo_forward, demo_backward, demo_left, demo_right, configSetTurnTime);
     //gStart = true;
 
     // wait until START cmd 
@@ -281,15 +230,6 @@ void loop() {
                 );
         gCarPos = mazeSolver.getCurrPos();
 
-        motionController.init(
-                gCellWidthCm, 
-                gWallWidthCm, 
-                &motorFrontLeft,
-                &motorFrontRight,
-                &motorBackLeft,
-                &motorBackRight
-                );
-
         updateDists(leftCm, rightCm, centerCm);
         markWalls(leftCm, rightCm, centerCm);
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
@@ -300,7 +240,6 @@ void loop() {
     updatePosition();
     mazeSolver.setCurrPos(gCarPos);
     updateDists(leftCm, rightCm, centerCm);
-    //markWalls(leftCm, rightCm, centerCm);
 
     if (gCarPos == gNextMove) {
         motionController.goBrake();

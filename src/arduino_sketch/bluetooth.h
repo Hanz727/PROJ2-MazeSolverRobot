@@ -3,4 +3,4 @@
 
 #define Bluetooth Serial2
 
-void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forward)(), void (*backward)(), void (*left)(), void (*right)(), void (*spin)()); 
+void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forward)(), void (*backward)(), void (*left)(), void (*right)(), void (*setTurnTime)(int16_t time)); 

@@ -15,7 +15,7 @@ void resetArduino() {
 }
 
 
-void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forward)(), void (*backward)(), void (*left)(), void (*right)(), void (*spin)()) {
+void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forward)(), void (*backward)(), void (*left)(), void (*right)(), void (*setTurnTime)(int16_t time)) {
     if (Bluetooth.available()) {
         String buffer;
         buffer = Bluetooth.readStringUntil('\n'); // Read single full message
@@ -35,6 +35,15 @@ void handleBluetoothCmds(int8_t& width, int8_t& height, bool& start, void (*forw
             width = widthStr.toInt();
             height = heightStr.toInt();
             Bluetooth.println("New dims: " + String(width) + "x" + String(height));
+            return;
+        }
+
+        if (startsWith(buffer, "TIME")) {
+            int sPos = buffer.indexOf(' ');
+            String timeStr = buffer.substring(sPos+1, buffer.length());
+            int time = timeStr.toInt();
+            setTurnTime(time);
+            Bluetooth.println("New rot time: " + String(time));
             return;
         }
 
