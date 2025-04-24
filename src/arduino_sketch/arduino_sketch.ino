@@ -82,7 +82,6 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
     if (rightCm < 12.) {
         vec2<int8_t> rightWall = mazeSolver.markWall(carPos, rightCm+w, carRotation+0.5*PI);
         if (rightWall != INVALID_VECTOR) {
-            //Bluetooth.print("right ");
             Bluetooth.println("{W " + String(rightWall.x) + "," + String(rightWall.y) + "}");
         }
     }
@@ -161,7 +160,8 @@ void updatePosition() {
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
         //gShouldMarkWall = true;
-        Bluetooth.println("pos updated to: " + String(gCarPos.x) + " " + String(gCarPos.y) + " after: " + String(millis() - t1) + "ms");
+        Bluetooth.println("{P " + String(gCarPos.x*2+1) + "," + String(gCarPos.y*2+1) + "}");
+        //Bluetooth.println("pos updated to: " + String(gCarPos.x) + " " + String(gCarPos.y) + " after: " + String(millis() - t1) + "ms");
         t1started = false;
     }
 
@@ -237,7 +237,6 @@ void loop() {
         updateDists(leftCm, rightCm, centerCm);
         markWalls(leftCm, rightCm, centerCm);
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
-
         gInitialized = true;
     }
 
