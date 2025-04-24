@@ -117,8 +117,6 @@ void demo_backward() {
     motionController.goBackward();
     delay(1000);
     motionController.goBrake();
-    delay(300);
-
 }
 
 void demo_left() {
