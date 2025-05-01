@@ -63,7 +63,7 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
     double w = gCarWidthCm / 2.;
     double h = gCarLengthCm / 2.;
 
-    if (centerCm < 12.) {
+    if (centerCm < 11.) {
         vec2<int8_t> centerWall = mazeSolver.markWall(carPos, centerCm+h, carRotation);
         if (centerWall != INVALID_VECTOR) {
             //Bluetooth.print("center ");
@@ -152,7 +152,7 @@ void updatePosition() {
 
     gShouldMarkWalls = false;
 
-    int delayTime = 280;
+    int delayTime = 230;
     if (motionController.m_driveDir == BACKWARD) {
         delayTime = 30;
     }
@@ -185,7 +185,7 @@ void updateDists(double& l, double& r, double& c) {
     rangeFinder.update();
     l = rangeFinder.getDistance(0) - 2.5;
     r = rangeFinder.getDistance(1) - 2.5;
-    c = rangeFinder.getDistance(2) - 4;
+    c = rangeFinder.getDistance(2) - 6.;
 
     if (l < 0)
         l = 0;
