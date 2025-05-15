@@ -88,7 +88,7 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
 void demo_forward() {
     motionController.goForward();
     delay(1000);
-    motionController.goBrake();
+    motionController.goBrake(0, 80);
 }
 
 void demo_backward() {
@@ -139,13 +139,13 @@ void updatePosition() {
         t1started = false;
     }
 
-    if (((lastLeft != left) || (lastRight != right)) && motionController.m_driveDir != BACKWARD) {
+    if (((lastLeft != left) || (lastRight != right)) && motionController.m_driveDir != BACKWARD && motionController.m_driveDir != RELEASE) {
         //Bluetooth.println("T1 started with: " + String(millis() - t1));
         t1 = millis();
         t1started = true;
     }
 
-    if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD) {
+    if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD && motionController.m_driveDir != RELEASE) {
         t1 = millis();
         t1started = true;
     }
@@ -217,7 +217,7 @@ void loop() {
     updateDists(leftCm, rightCm, centerCm);
 
     if (gCarPos == gNextMove) {
-        motionController.goBrake(100);
+        motionController.goBrake(5000);
         // go brake does a small delay, update distances again!
         updateDists(leftCm, rightCm, centerCm);
 
