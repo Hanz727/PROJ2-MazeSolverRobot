@@ -33,7 +33,6 @@ bool gInitialized = false;
 vec2<double> gCarPos = {6,6};
 vec2<int8_t> gNextMove = {6,5};
 
-bool gShouldMarkWalls = true;
 
 void setup() {
     rangeFinder.init(rangeFinderpins, 3, ULTRASONIC_HC_SR04);
@@ -54,9 +53,6 @@ void setup() {
 }
 
 void markWalls(double leftCm, double rightCm, double centerCm) {
-    if (!gShouldMarkWalls)
-        return;
-
     double carRotation = motionController.getCarRotation();
     vec2<double> carPos = mazeSolver.getCurrPos(); 
 
@@ -87,27 +83,6 @@ void markWalls(double leftCm, double rightCm, double centerCm) {
     }
 
     Bluetooth.println("");
-}
-
-void accuratePos(vec2<double>& carPos, double leftCm, double rightCm, double centerCm) {
-    int offx = 0;
-
-    if (leftCm > 0 && leftCm <= (gCellWidthCm - gCarWidthCm)) {
-        offx = -1 + (leftCm + gCarWidthCm/2)/(gCellWidthCm/2);
-    } else if (rightCm > 0 && rightCm <= (gCellWidthCm - gCarWidthCm)){
-        offx = 1 - (rightCm + gCarWidthCm/2)/(gCellWidthCm/2);
-    }
-
-    CompassDir rot = mazeSolver.radiansToDirection(motionController.getCarRotation());
-    if (rot == South || rot == West) {
-        offx = -offx;
-    }
-
-    if (rot == East || rot == West) {
-        carPos.y = (int)carPos.y + offx;
-        return;
-    }
-    carPos.x = (int)carPos.x + offx;
 }
 
 void demo_forward() {
@@ -150,8 +125,6 @@ void updatePosition() {
     static bool lastLeft = left;
     static bool lastRight = right;
 
-    gShouldMarkWalls = false;
-
     int delayTime = 230;
     if (motionController.m_driveDir == BACKWARD) {
         delayTime = 30;
@@ -159,7 +132,8 @@ void updatePosition() {
 
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
-        //gShouldMarkWall = true;
+        mazeSolver.setCurrPos(gCarPos);
+
         Bluetooth.println("{P " + String(gCarPos.x*2+1) + "," + String(gCarPos.y*2+1) + "}");
         //Bluetooth.println("pos updated to: " + String(gCarPos.x) + " " + String(gCarPos.y) + " after: " + String(millis() - t1) + "ms");
         t1started = false;
@@ -172,7 +146,6 @@ void updatePosition() {
     }
 
     if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD) {
-        //gShouldMarkWall = true;
         t1 = millis();
         t1started = true;
     }
@@ -241,17 +214,15 @@ void loop() {
     }
 
     updatePosition();
-    mazeSolver.setCurrPos(gCarPos);
     updateDists(leftCm, rightCm, centerCm);
 
     if (gCarPos == gNextMove) {
-        motionController.goBrake();
+        motionController.goBrake(100);
         // go brake does a small delay, update distances again!
         updateDists(leftCm, rightCm, centerCm);
 
 printDists(leftCm, rightCm, centerCm); // debug print
 
-        gShouldMarkWalls = true;
         markWalls(leftCm, rightCm, centerCm);
 
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
