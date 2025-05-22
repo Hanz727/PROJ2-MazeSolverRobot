@@ -115,7 +115,7 @@ void printDists(double left, double right, double center) {
     Serial2.print(" center: " + String(center) + "\n");
 }
 
-void updatePosition() {
+void updatePosition(double centerCm) {
     static unsigned long t1 = millis();
     static bool t1started = false;
 
@@ -125,9 +125,9 @@ void updatePosition() {
     static bool lastLeft = left;
     static bool lastRight = right;
 
-    int delayTime = 230;
+    int delayTime = 450;
     if (motionController.m_driveDir == BACKWARD) {
-        delayTime = 30;
+        delayTime = 100;
     }
 
     if (millis() - t1 >= delayTime && t1started) {
@@ -139,13 +139,21 @@ void updatePosition() {
         t1started = false;
     }
 
-    if (((lastLeft != left) || (lastRight != right)) && motionController.m_driveDir != BACKWARD && motionController.m_driveDir != RELEASE) {
+    // anti wall fucker
+    if (millis() - t1 > 2000 && t1started) {
+        gCarPos = gNextMove;
+        mazeSolver.setCurrPos(gCarPos);
+        Bluetooth.println("{P " + String(gCarPos.x*2+1) + "," + String(gCarPos.y*2+1) + "}");
+        t1started = false;
+    }
+
+    if (((lastLeft != left) || (lastRight != right)) && motionController.m_driveDir != BACKWARD && motionController.m_driveDir != RELEASE && !t1started) {
         //Bluetooth.println("T1 started with: " + String(millis() - t1));
         t1 = millis();
         t1started = true;
     }
 
-    if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD && motionController.m_driveDir != RELEASE) {
+    if ((left < lastLeft || right < lastRight) && motionController.m_driveDir == BACKWARD && motionController.m_driveDir != RELEASE  && !t1started) {
         t1 = millis();
         t1started = true;
     }
@@ -213,19 +221,19 @@ void loop() {
         gInitialized = true;
     }
 
-    updatePosition();
     updateDists(leftCm, rightCm, centerCm);
+    updatePosition(centerCm);
 
     if (gCarPos == gNextMove) {
-        motionController.goBrake(5000);
+        motionController.goBrake(100);
         // go brake does a small delay, update distances again!
         updateDists(leftCm, rightCm, centerCm);
 
 printDists(leftCm, rightCm, centerCm); // debug print
 
         markWalls(leftCm, rightCm, centerCm);
-
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
+
         Bluetooth.println("nm: " + String(gNextMove.x) + " " + String(gNextMove.y) );
     }
 
