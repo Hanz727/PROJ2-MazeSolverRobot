@@ -28,8 +28,19 @@ const double gWallWidthCm = 4.;
 const double gCarWidthCm = 18.; 
 const double gCarLengthCm = 26.;
 
+enum mode {
+    BLIND,
+    PREPLANNED
+};
+
 bool gStart = false;
 bool gInitialized = false;
+mode gMode = BLIND;
+
+
+// preplanned variables
+vec2<int8_t> gStartPos = {-1,-1};
+vec2<int8_t> gEndPos = {-1,-1};
 
 vec2<double> gCarPos = {6,6};
 vec2<int8_t> gNextMove = {6,5};
@@ -171,7 +182,13 @@ void updatePosition() {
 }
 
 void postStartInit() {
-        // Init after starting from bluetooth
+    // Init after starting from bluetooth
+
+    if (gStartPos.x != -1 && gEndPos.x != -1) {
+        gMode = PREPLANNED;
+    }
+
+    if (gMode == BLIND) {
         mazeSolver.init(
                 gWallWidthCm,
                 gCellWidthCm,
@@ -182,11 +199,27 @@ void postStartInit() {
                 {-1,-1}, 
                 true // blind mode on
                 );
-        gCarPos = mazeSolver.getCurrPos();
+    } else if (gMode == PREPLANNED) {
+        mazeSolver.init(
+                gWallWidthCm,
+                gCellWidthCm,
+                gCellHeightCm, 
+                gMazeWidth, 
+                gMazeHeight, 
+                gStartPos, 
+                gEndPos, 
+                false 
+                );
+    } else {
+        Bluetooth.println("Invalid mode");
+        return;
+    }
 
-        markWalls();
-        gNextMove = mazeSolver.getNextMove(motionController.getHeading());
-        gInitialized = true;
+    gCarPos = mazeSolver.getCurrPos();
+
+    markWalls();
+    gNextMove = mazeSolver.getNextMove(motionController.getHeading());
+    gInitialized = true;
 }
 
 void loop() {
@@ -203,8 +236,17 @@ void loop() {
     // SPIN
     //
     // IMPORTANT! If you don't want to use bluetooth now, just comment out the line below and set gStart to true.
-    handleBluetoothCmds(gMazeWidth, gMazeHeight, gStart, demo_forward, demo_backward, demo_left, demo_right);
-    //gStart = true;
+    handleBluetoothCmds(
+            gMazeWidth, 
+            gMazeHeight, 
+            gStart, 
+            demo_forward, 
+            demo_backward, 
+            demo_left, 
+            demo_right,
+            gStartPos,
+            gEndPos
+            );
 
     // wait until START cmd 
     if (!gStart)
@@ -220,15 +262,17 @@ void loop() {
         motionController.goBrake(100);
         arrived = true;
 
-printDists(); 
-
         markWalls();
+
+        if (gMode == PREPLANNED) {
+            mazeSolver.floodFill(mazeSolver.getEndPos());
+        }
+
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
     }
-    
+
     if (!arrived)
         updateDists();
 
     motionController.drive(gCarPos.x, gCarPos.y, gNextMove.x, gNextMove.y, gLeftCm, gRightCm, gCenterCm);
 }
-
