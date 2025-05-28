@@ -153,9 +153,9 @@ void updatePosition() {
     static bool lastLeft = left;
     static bool lastRight = right;
 
-    int delayTime = 450;
+    int delayTime = 380;
     if (motionController.m_driveDir == BACKWARD)
-        delayTime = 100;
+        delayTime = 40;
 
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
