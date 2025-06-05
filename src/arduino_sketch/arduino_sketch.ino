@@ -154,8 +154,8 @@ void updatePosition() {
     static bool lastRight = right;
 
     int delayTime = 380;
-    if (motionController.m_driveDir == BACKWARD)
-        delayTime = 40;
+    //if (motionController.m_driveDir == BACKWARD)
+    //    delayTime = 40;
 
     if (millis() - t1 >= delayTime && t1started) {
         gCarPos = gNextMove;
@@ -163,6 +163,20 @@ void updatePosition() {
 
         Bluetooth.println("{P " + String(gCarPos.x*2+1) + "," + String(gCarPos.y*2+1) + "}");
         t1started = false;
+    }
+
+    if (millis() - t1 >= 4000 && !t1started) {
+        motionController.goBrake(100);
+        
+        markWalls();
+
+        if (gMode == PREPLANNED) {
+            mazeSolver.floodFill(mazeSolver.getEndPos());
+        }
+
+        gNextMove = mazeSolver.getNextMove(motionController.getHeading());
+        Bluetooth.println("Emergency response");
+        t1 = millis();
     }
 
     // forward state change
@@ -269,6 +283,7 @@ void loop() {
         }
 
         gNextMove = mazeSolver.getNextMove(motionController.getHeading());
+        Bluetooth.println("next move");
     }
 
     if (!arrived)
