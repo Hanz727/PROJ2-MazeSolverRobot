@@ -166,7 +166,7 @@ void updatePosition() {
     }
 
     if (millis() - t1 >= 4000 && !t1started) {
-        motionController.goBrake(100);
+        motionController.goBrake(100, 0);
         
         markWalls();
 
