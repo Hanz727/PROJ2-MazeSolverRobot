@@ -153,17 +153,18 @@ void updatePosition() {
     static bool lastLeft = left;
     static bool lastRight = right;
 
-    int delayTime = 380;
+    int delayTime = 390;
 
-    if (millis() - t1 >= delayTime && t1started || (millis() - t1 >= 4000 && !t1started)) {
+    if ((millis() - t1 >= delayTime && t1started) || (millis() - t1 >= 4000 && !t1started)) {
+        if (!t1started) {
+            gNextMove = gCarPos;
+            Bluetooth.println("Emergency response");
+        }
+
         gCarPos = gNextMove;
         mazeSolver.setCurrPos(gCarPos);
 
         Bluetooth.println("{P " + String(gCarPos.x*2+1) + "," + String(gCarPos.y*2+1) + "}");
-
-        if (!t1started) {
-            Bluetooth.println("Emergency response");
-        }
         
         t1started = false;
         t1 = millis();
